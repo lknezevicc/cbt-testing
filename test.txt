@@ -1,0 +1,1639 @@
+import logging
+
+import csv
+
+import json
+
+from enum import Enum
+
+from dataclasses import dataclass
+
+from typing import Optional
+
+
+
+class DialogSection(str, Enum):
+
+ TEXT = "TEXT"
+
+ BUTTON = "BUTTON"
+
+
+
+class ReferenceType(str, Enum):
+
+ URL = "URL"
+
+ DIALOG = "DIALOG"
+
+
+
+@dataclass
+
+class ValidationError:
+
+ dialog_name: str
+
+ answer_index: Optional[int]
+
+ section: DialogSection
+
+ section_index: Optional[int]
+
+ reference_type: ReferenceType
+
+ value: str
+
+ error_message: str
+
+
+
+class Report:
+
+ def __init__(self, logger: Optional[logging.Logger] = None):
+
+   self.errors: list[ValidationError] = []
+   self.logger = logger
+
+
+
+ def write_to_csv(self, output_path="report.csv"):
+
+   if not self.errors:
+
+     if self.logger:
+
+       self.logger.info("No errors found - CSV will not be generated")
+
+     return
+
+
+
+   with open(output_path, "w", newline="", encoding="utf-8") as f:
+
+     writer = csv.writer(f)
+
+
+writer.writerow(["dialog_name","answer_index","section","section_index","reference_type"
+,"value","error"])
+
+     for error in self.errors:
+
+       writer.writerow([
+
+            error.dialog_name,
+
+            error.answer_index if error.answer_index is not None else None,
+
+            error.section.value,
+
+            error.section_index if error.section_index is not None else None,
+
+            error.reference_type.value,
+
+            error.value,
+
+            error.error_message
+
+       ])
+
+
+
+   if self.logger:
+
+     self.logger.info(f"CSV report generated: {output_path}")
+
+
+
+ def write_to_json(self, output_path="report.json"):
+
+   if not self.errors:
+     if self.logger:
+
+       self.logger.info("No errors found - JSON will not be generated")
+
+     return
+
+
+
+   with open(output_path, "w", encoding="utf-8") as f:
+
+     json.dump([{
+
+       "dialog_name": e.dialog_name,
+
+       "answer_index": e.answer_index,
+
+       "section": e.section.value,
+
+       "section_index": e.section_index,
+
+       "reference_type": e.reference_type.value,
+
+       "value": e.value,
+
+       "error_message": e.error_message
+
+     } for e in self.errors], f, ensure_ascii=False, indent=4)
+
+
+
+   if self.logger:
+
+     self.logger.info(f"JSON report generated: {output_path}")
+
+
+
+
+import os
+
+import re
+
+from functools import lru_cache
+
+from typing import List
+import requests
+
+
+
+from .logging_utils import use_logging
+
+from .dialog_validation_models import DialogSection, ReferenceType, Report
+
+from .scope_models import Button
+
+from .scope import get_dialog_scope, load_dialogs_from_dir
+
+
+
+logger = use_logging("validate_dialogs", log_file="logs/validate_dialogs.log")
+
+
+
+# Utility functions
+
+def _is_url(value: str) -> bool:
+
+  return value.startswith("http://") or value.startswith("https://")
+
+
+
+def _extract_urls_from_text(text: str) -> List[str]:
+
+  url_regex = r'\[.*?\]\((https?://[^)]+)\)'
+
+  return re.findall(url_regex, text)
+
+
+
+def _dialog_exists(dialog_name: str, dialogs_dir: str) -> bool:
+
+  return any(
+
+      os.path.isfile(os.path.join(dialogs_dir, f"{dialog_name}{ext}"))
+
+      for ext in (".yml", ".yaml")
+
+  )
+
+
+
+@lru_cache(maxsize=64)
+
+def _check_url(url: str, timeout=5) -> bool:
+
+  try:
+
+      response = requests.head(url, allow_redirects=True, timeout=timeout)
+   if response.status_code >= 400:
+
+     response = requests.get(url, allow_redirects=True, timeout=timeout)
+
+
+
+   return response.status_code < 400
+
+ except requests.RequestException:
+
+   logger.warning(f"URL check failed for: {url}")
+
+   return False
+
+
+
+def validate_answer_text(dialog_name: str, answer_idx: int, text: str, report: Report):
+
+ urls_in_text = _extract_urls_from_text(text)
+
+ for url_idx, url in enumerate(urls_in_text):
+
+   if not _check_url(url):
+
+     report.add(
+
+         dialog_name=dialog_name,
+
+         answer_index=answer_idx,
+
+         section=DialogSection.TEXT,
+
+         section_index=url_idx,
+
+         reference_type=ReferenceType.URL,
+
+         value=url,
+
+         error_message="URL is not reachable"
+
+     )
+
+
+
+def validate_answer_button(
+
+ dialog_name: str,
+
+ answer_idx: int,
+
+ button: Button,
+
+ button_idx: int,
+
+ dialogs_dir: str,
+     report: Report,
+
+):
+
+     payload = button.payload
+
+
+
+     if _is_url(payload):
+
+       if not _check_url(payload):
+
+         report.add(
+
+             dialog_name=dialog_name,
+
+             answer_index=answer_idx,
+
+             section=DialogSection.BUTTON,
+
+             section_index=button_idx,
+
+             reference_type=ReferenceType.URL,
+
+             value=payload,
+
+             error_message="URL is not reachable",
+
+         )
+
+     else:
+
+       if not _dialog_exists(payload, dialogs_dir):
+
+         report.add(
+
+             dialog_name=dialog_name,
+
+             answer_index=answer_idx,
+
+             section=DialogSection.BUTTON,
+
+             section_index=button_idx,
+
+             reference_type=ReferenceType.DIALOG,
+
+             value=payload,
+
+             error_message="Referenced dialog does not exist",
+
+         )
+
+
+
+def validate_all_dialogs(dialogs_dir: str, pull_latest_from_github: bool):
+ report = Report(logger=logger)
+
+ dialogs = []
+
+
+
+ if pull_latest_from_github:
+
+   dialogs = get_dialog_scope()
+
+ else:
+
+   dialogs = load_dialogs_from_dir(dialogs_dir)
+
+
+
+ for dialog in dialogs:
+
+   for ans_idx, answer in enumerate(dialog.answers):
+
+     if answer.text:
+
+          validate_answer_text(dialog.name, ans_idx, answer.text, report)
+
+
+
+     for btn_idx, button in enumerate(answer.buttons):
+
+          validate_answer_button(dialog.name, ans_idx, button, btn_idx, dialogs_dir,
+report)
+
+
+
+ report.write_to_csv()
+
+ report.write_to_json()
+
+
+
+
+import os
+
+import requests
+
+import yaml
+
+import datetime
+import pickle
+
+
+
+def fetch_file(filepath: str, branch: str = "master") -> requests.Response:
+
+  """
+
+  Take a relative filepath in the repository and fetch the file over https
+
+  """
+
+  URL = f"https://raw.code.rbi.tech/raiffeisen/maia-bot-rbhr-raia/{branch}/{filepath}"
+
+  token = os.getenv('GITHUB_PAT')
+
+
+
+  if not token:
+
+   raise RuntimeError("GitHub Personal Access Token (GITHUB_PAT) is not set in the
+environment variables.")
+
+
+
+  headers = {
+
+      "Authorization": f"token {token}"
+
+  }
+
+
+
+  try:
+
+      response = requests.get(URL, headers=headers)
+
+      response.raise_for_status()
+
+      return response
+
+  except requests.exceptions.RequestException as e:
+
+      raise RuntimeError(f"Failed to fetch file from {URL}") from e
+
+
+
+def fetch_file_text(filepath: str, branch: str = "master") -> str:
+
+  """
+
+  Take a relative filepath in the repository and get text contents of a file
+
+  """
+  try:
+
+      return fetch_file(filepath, branch).text
+
+  except ValueError:
+
+      raise ValueError("The response content is not valid text data.")
+
+
+
+def get_files_and_dirs(dir: str, branch: str = "main") -> dict[str, list[str]]:
+
+  """
+
+  Retrieve a list of files and directories from a specified directory in a GitHub repository.
+
+  """
+
+  URL = f"https://api.code.rbi.tech/repos/raiffeisen/maia-bot-rbhr-
+raia/contents/{dir}?ref={branch}"
+
+
+
+  token = os.getenv('GITHUB_PAT')
+
+
+
+  if not token:
+
+   raise RuntimeError("GitHub Personal Access Token (GITHUB_PAT) is not set in the
+environment variables.")
+
+
+
+  headers = {
+
+      "Authorization": f"token {token}"
+
+  }
+
+
+
+  try:
+
+      categorized_data = {'files': [], 'dirs': []}
+
+      response = requests.get(URL, headers=headers)
+
+      response.raise_for_status()
+
+      for item in response.json():
+
+         if item['type'] == 'file':
+
+           categorized_data['files'].append(item['path'])
+        elif item['type'] == 'dir':
+
+          categorized_data['dirs'].append(item['path'])
+
+   return categorized_data
+
+ except requests.exceptions.RequestException as e:
+
+   raise RuntimeError(f"Failed to fetch file from {URL}") from e
+
+
+
+def get_dialog_requirements(branch: str = "master") -> list:
+
+ """
+
+ Retrieve dialog requirements from YAML files in a specified branch of the repository.
+
+ """
+
+ dialogs = []
+
+
+
+ try:
+
+   dirs = get_files_and_dirs("bots/default/dialog_requirements/dialogs",
+branch=branch)['dirs']
+
+ except Exception as e:
+
+   print(f"Error fetching directories: {e}")
+
+   return dialogs
+
+
+
+ for dir in dirs:
+
+   try:
+
+        files = get_files_and_dirs(dir, branch=branch)["files"]
+
+   except Exception as e:
+
+        print(f"Error fetching files in directory {dir}: {e}")
+
+        continue
+
+
+
+   for file in files:
+
+        try:
+        parsed_data = yaml.safe_load(fetch_file(file, branch=branch).text)
+
+        second_key = next(iter(parsed_data["dialogs"]))
+
+        dialogs.append(parsed_data["dialogs"][second_key])
+
+       except yaml.YAMLError as e:
+
+        print(f"Error parsing YAML file {file}: {e}")
+
+       except Exception as e:
+
+        print(f"Error fetching file {file}: {e}")
+
+
+
+ return dialogs
+
+
+
+def get_dialog_requirements_map(branch: str = "master") -> dict:
+
+ dialogs = get_dialog_requirements(branch=branch)
+
+
+
+ dialogs_map: dict = {}
+
+
+
+ for dialog in dialogs:
+
+   dialogs_map.setdefault(dialog["name"], dialog)
+
+
+
+ return dialogs_map
+
+
+
+def write_dialog_requirements_binary(out_dir: str, branch: str = "master") -> None:
+
+ """
+
+  Fetch current dialog requirements for specific branch and then serialize and store
+dialog requirements as binary.
+
+ """
+
+ dialogs = get_dialog_requirements(branch=branch)
+
+
+
+ out_dir = out_dir[:-1] if out_dir[-1] == '/' else out_dir
+ fname = branch
+
+ if '/' in branch or '\\' in branch:
+
+   fname = fname.replace("\\", "-")
+
+   fname = fname.replace("/", "-")
+
+
+
+ try:
+
+   with open(f"{out_dir}/dialog_requirements_{fname}.pkl", 'wb') as file:
+
+        pickle.dump(dialogs, file=file)
+
+ except Exception as e:
+
+   raise RuntimeError(f"Couldn't write the binary file: {e}")
+
+
+
+  print(f"Dialogs for branch {branch} written in:
+{out_dir}/dialog_requirements_{branch}.pkl")
+
+
+
+def read_dialog_requirements_binary(file_path: str) -> list:
+
+ """
+
+ Deserialize and retrieve dialog requirements from a binary file.
+
+ """
+
+ try:
+
+   with open(file_path, 'rb') as file:
+
+        dialogs = pickle.load(file=file)
+
+   return dialogs
+
+ except Exception as e:
+
+   raise RuntimeError(f"Couldn't load from binary: {e}")
+
+
+
+def fetch_last_commits(count: int = 30, path: str = "/") -> requests.Response:
+
+ """
+ Fetch the last commits from a specified repository path using the GitHub API.
+
+ """
+
+  URL = f"https://api.code.rbi.tech/repos/raiffeisen/maia-bot-rbhr-
+raia/commits?per_page={count}&path={path}"
+
+ token = os.getenv('GITHUB_PAT')
+
+
+
+ if not token:
+
+   raise RuntimeError("GitHub Personal Access Token (GITHUB_PAT) is not set in the
+environment variables.")
+
+
+
+ headers = {
+
+     "Authorization": f"token {token}"
+
+ }
+
+
+
+ try:
+
+     response = requests.get(URL, headers=headers)
+
+     response.raise_for_status()
+
+     return response
+
+ except requests.exceptions.RequestException as e:
+
+     raise RuntimeError(f"Failed to fetch file from {URL}") from e
+
+
+
+def get_live_dialog_requirements(binary_path: str, branch: str = "master"):
+
+ """
+
+ Check for updates to dialog requirements and update the binary file if necessary.
+
+ """
+
+ if os.path.exists(binary_path):
+
+     binary_last_mtime = os.path.getmtime(binary_path)
+
+ else:
+
+     binary_last_mtime = 0
+  try:
+
+   for commit in fetch_last_commits(count=10,
+path="bots/default/dialog_requirements/dialogs").json():
+
+    commit_time = datetime.datetime.strptime(commit['commit']['author']['date'],
+"%Y-%m-%dT%H:%M:%SZ").timestamp()
+
+         if commit_time > binary_last_mtime or not os.path.exists:
+
+          print("There was an update to dialogs, please wait...")
+
+      write_dialog_requirements_binary('/'.join(binary_path.split("/")[:-1]),
+branch=branch)
+
+          print("Successfully updated dialog requirements binary")
+
+          break
+
+
+
+    return read_dialog_requirements_binary(binary_path)
+
+  except Exception as e:
+
+    raise RuntimeError(f"Failed parsing dialog requirements data")
+
+
+
+import subprocess
+
+
+
+def pull_repository(repo_url: str, branch: str = "main", bin_dir: str = "bin") -> str:
+
+  """
+
+  Clone the repository and checkout the specified branch into the bin directory.
+
+  Each branch is stored in its own folder.
+
+  """
+
+  repo_name = repo_url.split('/')[-1]
+
+  branch_dir = os.path.join(bin_dir, repo_name, branch)
+
+
+
+  if not os.path.exists(branch_dir):
+
+    os.makedirs(branch_dir)
+  try:
+
+    subprocess.run(
+
+         ["git", "clone", "--branch", branch, repo_url, branch_dir],
+
+         check=True
+
+    )
+
+  except subprocess.CalledProcessError as e:
+
+    raise RuntimeError(f"Failed to clone repository: {e}")
+
+
+
+  return branch_dir
+
+
+
+def refresh(repo_url: str, branch: str = "master", bin_dir: str = "bin") -> str:
+
+  """
+
+  Check for updates in the specified branch and pull if there are changes.
+
+  """
+
+  repo_name = repo_url.split('/')[-1]
+
+  branch_dir = os.path.join(bin_dir, repo_name, branch)
+
+
+
+  if not os.path.exists(branch_dir):
+
+    # If the directory doesn't exist, clone the repository
+
+    return pull_repository(repo_url, branch, bin_dir)
+
+
+
+  try:
+
+    subprocess.run(
+
+         ["git", "-C", branch_dir, "pull", "origin", branch],
+
+         check=True
+
+    )
+
+  except subprocess.CalledProcessError as e:
+     raise RuntimeError(f"Failed to pull changes for repository: {e}")
+
+
+
+ return branch_dir
+
+
+
+
+# logging_utils.py
+
+import os
+
+import logging
+
+
+
+class SimpleColorFormatter(logging.Formatter):
+
+ LEVEL_COLORS = {
+
+     logging.DEBUG: "\033[37m",
+
+     logging.INFO: "\033[32m",
+
+     logging.WARNING: "\033[33m",
+
+     logging.ERROR: "\033[31m",
+
+     logging.CRITICAL: "\033[1;31m"
+
+ }
+
+
+
+ RESET = "\033[0m"
+
+
+
+ def format(self, record):
+
+     color = self.LEVEL_COLORS.get(record.levelno, "")
+
+     message = super().format(record)
+
+     return f"{color}{message}{self.RESET}"
+def use_logging(name: str, log_file: str = None) -> logging.Logger:
+
+ logger = logging.getLogger(name)
+
+ logger.setLevel(logging.DEBUG)
+
+
+
+ console_formatter = SimpleColorFormatter(
+
+     fmt="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+
+     datefmt="%Y-%m-%d %H:%M:%S"
+
+ )
+
+
+
+ console_handler = logging.StreamHandler()
+
+ console_handler.setLevel(logging.INFO)
+
+ console_handler.setFormatter(console_formatter)
+
+ logger.addHandler(console_handler)
+
+
+
+ if log_file:
+
+     os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+     file_formatter = logging.Formatter(
+
+         fmt="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+
+         datefmt="%Y-%m-%d %H:%M:%S"
+
+     )
+
+     file_handler = logging.FileHandler(log_file, encoding="utf-8")
+
+     file_handler.setLevel(logging.DEBUG)
+
+     file_handler.setFormatter(file_formatter)
+
+     logger.addHandler(file_handler)
+
+
+
+ return logger
+from typing import Any, List, Dict, Optional, Union
+
+from enum import Enum
+
+
+
+## TO-DO LIST ###
+
+# TODO: We need to make sure that all prints are pretty :D Currently I don't want to focus
+on that
+
+# TODO: Maybe add some utility methods like getting the dialogs list as a dictionary for
+easer search
+
+# Please just append to the list and someone will eventually look at it (I hope so) :D
+
+
+
+class Sample:
+
+ def __init__(self, text: str):
+
+   self.text = text
+
+
+
+ def __str__(self):
+
+   return f"Sample(text={self.text})"
+
+
+
+class VariableType(Enum):
+
+ ENUM = "enum"
+
+ TEXT = "text"
+
+ BOOLEAN = "boolean"
+
+ NUMBER = "number"
+
+ OBJECT = "object"
+
+ CONFIRMATION = "confirmation"
+class Variable:
+
+ def __init__(self, name: str, type: Optional[VariableType] = None, value:
+Optional[Union[str, bool, int, float, list, dict]] = None):
+
+   self.name = name
+
+   self.type = type
+
+   self.value = value
+
+
+
+ def __str__(self):
+
+   return f"Variable(name={self.name}, type={self.type}, value={self.value})"
+
+
+
+class Override:
+
+  def __init__(self, name: str, ask_override: List[Any] = None, input_error_ask_override:
+List[Any] = None,
+
+        validation_error_ask_override: List[Any] = None, validation_actions_override:
+List[Any] = None,
+
+        correction_answer_override: List[Any] = None):
+
+   self.name = name
+
+   self.ask_override = ask_override or []
+
+   self.input_error_ask_override = input_error_ask_override or []
+
+   self.validation_error_ask_override = validation_error_ask_override or []
+
+   self.validation_actions_override = validation_actions_override or []
+
+   self.correction_answer_override = correction_answer_override or []
+
+
+
+ def __str__(self):
+
+   return (f"Override(name={self.name}, ask_override={self.ask_override}, "
+
+       f"input_error_ask_override={self.input_error_ask_override}, "
+
+       f"validation_error_ask_override={self.validation_error_ask_override}, "
+
+       f"validation_actions_override={self.validation_actions_override}, "
+
+       f"correction_answer_override={self.correction_answer_override})")
+class ContextVariable(Override):
+
+  def __str__(self):
+
+    return f"ContextVariable({super().__str__()})"
+
+
+
+class Button:
+
+  def __init__(self, title: Optional[str] = None, payload: Optional[str] = None):
+
+    self.title = title
+
+    self.payload = payload
+
+
+
+  def __str__(self):
+
+    return f"Button(title={self.title}, payload={self.payload})"
+
+
+
+class Answer:
+
+  def __init__(self, text: Optional[str] = None, buttons: List[Button] = None, conditions:
+List[Any] = None):
+
+    self.text = text
+
+    self.buttons = buttons or []
+
+    self.conditions = conditions or []
+
+
+
+  def __str__(self):
+
+   return f"Answer(text={self.text}, buttons={self.buttons},
+conditions={self.conditions})"
+
+
+
+class Dialog:
+
+ def __init__(self, id: str, name: str, topic: str, answers: List[Answer], overrides: Dict[str,
+Override],
+
+         samples: List[Sample], description: str, follow_up_dialog: Optional[Any] = None,
+
+         is_active: bool = True, is_routable: bool = True, is_blocking: bool = False,
+        is_returnable: bool = True, is_persistent: bool = True,
+is_excluded_from_clarification: bool = False):
+
+   self.id = id
+
+   self.name = name
+
+   self.topic = topic
+
+   self.answers = answers
+
+   self.overrides = overrides
+
+   self.samples = samples
+
+   self.description = description
+
+   self.follow_up_dialog = follow_up_dialog
+
+   self.is_active = is_active
+
+   self.is_routable = is_routable
+
+   self.is_blocking = is_blocking
+
+   self.is_returnable = is_returnable
+
+   self.is_persistent = is_persistent
+
+   self.is_excluded_from_clarification = is_excluded_from_clarification
+
+
+
+ def __str__(self):
+
+   return (f"Dialog(id={self.id}, name={self.name}, topic={self.topic}, "
+
+       f"answers={self.answers}, overrides={self.overrides}, samples={self.samples}, "
+
+       f"description={self.description}, follow_up_dialog={self.follow_up_dialog}, "
+
+       f"is_active={self.is_active}, is_routable={self.is_routable},
+is_blocking={self.is_blocking}, "
+
+       f"is_returnable={self.is_returnable}, is_persistent={self.is_persistent}, "
+
+       f"is_excluded_from_clarification={self.is_excluded_from_clarification})")
+
+
+
+def parse_yaml_to_dialog(data: dict) -> Dialog:
+
+ """Convert YAML data into a Dialog object."""
+
+ data = data.get('dialogs', {})
+  name, dialog_definition = next(iter(data.items()))
+
+  return Dialog(
+
+      id=dialog_definition.get('id', name),
+
+      name=dialog_definition.get('name', name),
+
+      topic=dialog_definition.get('topic', ''),
+
+      answers=[parse_yaml_to_answer(a) for a in dialog_definition.get('answers', [])],
+
+      overrides={k: parse_yaml_to_override(v) for k, v in dialog_definition.get('overrides',
+{}).items()},
+
+      samples=[Sample(text=s) for s in dialog_definition.get('samples', [])],
+
+      description=dialog_definition.get('description', ''),
+
+      follow_up_dialog=None,
+
+      is_active=dialog_definition.get('is_active', True),
+
+      is_routable=dialog_definition.get('is_routable', True),
+
+      is_blocking=dialog_definition.get('is_blocking', False),
+
+      is_returnable=dialog_definition.get('is_returnable', True),
+
+      is_persistent=dialog_definition.get('is_persistent', True),
+
+
+is_excluded_from_clarification=dialog_definition.get('is_excluded_from_clarification',
+False)
+
+  )
+
+
+
+def parse_yaml_to_answer(data: dict) -> Answer:
+
+  buttons_data = data.get('buttons', [])
+
+  buttons = [parse_yaml_to_button(btn) for btn in buttons_data]
+
+  return Answer(
+
+      text=data.get('text', None),
+
+      buttons=buttons,
+
+      conditions=data.get('condition', [])
+
+  )
+def parse_yaml_to_button(data: dict) -> Button:
+
+ """Convert YAML data into a Button object."""
+
+ return Button(
+
+     title=data.get('title', None),
+
+     payload=data.get('payload', None)
+
+ )
+
+
+
+def parse_yaml_to_override(data: dict) -> Override:
+
+ """Convert YAML data into an Override object."""
+
+ return Override(
+
+     name=data.get('name', ''),
+
+     ask_override=[],
+
+     input_error_ask_override=[],
+
+     validation_error_ask_override=[],
+
+     validation_actions_override=[],
+
+     correction_answer_override=[]
+
+ )
+
+
+
+
+import os
+
+from typing import List
+
+import yaml
+from .github import refresh
+
+from .scope_models import Dialog, parse_yaml_to_dialog
+
+
+
+RBHR_MAIA_GITHUB_REPO_URL = "https://code.rbi.tech/raiffeisen/maia-bot-rbhr-raia"
+
+
+
+def load_dialogs_from_dir(dialogs_dir: str) -> List[Dialog]:
+
+ dialogs = []
+
+
+
+ for root, _, files in os.walk(dialogs_dir):
+
+    for file in files:
+
+      if file.endswith('.yaml') or file.endswith('.yml'):
+
+        file_path = os.path.join(root, file)
+
+        with open(file_path, 'r', encoding='utf-8') as f:
+
+           try:
+
+             dialog_data = yaml.safe_load(f)
+
+             dialog = parse_yaml_to_dialog(dialog_data)
+
+             dialogs.append(dialog)
+
+           except yaml.YAMLError as e:
+
+             print(f"Error parsing YAML file {file_path}: {e}")
+
+
+
+ return dialogs
+
+
+
+def get_dialog_scope(branch: str = "main", bin_dir: str = "bin", repo_url: str =
+RBHR_MAIA_GITHUB_REPO_URL) -> List[Dialog]:
+
+ requirements_path = refresh(repo_url, branch, bin_dir)
+
+  dialogs_dir = os.path.join(requirements_path,
+"bots/default/dialog_requirements/dialogs")
+  if not os.path.exists(dialogs_dir):
+
+    raise RuntimeError(f"Dialog requirements directory does not exist: {dialogs_dir}")
+
+
+
+  dialogs = load_dialogs_from_dir(dialogs_dir)
+
+
+
+  return dialogs
+
+
+
+
+import os
+
+import re
+
+from typing import List, Tuple
+
+from openpyxl import Workbook
+
+from chatbot_utils.scope import load_dialogs_from_dir, Dialog
+
+
+
+def _is_url(value: str) -> bool:
+
+  return value.startswith("http://") or value.startswith("https://")
+
+
+
+def extract_urls_from_text(text: str) -> List[str]:
+
+  if not text:
+
+    return []
+  md_urls = re.findall(r'\\[.*?\\]\\((https?://[^\s)]+)\\)', text)
+
+  plain_urls = re.findall(r'https?://[^\s)]+', text)
+
+
+
+  return list(set(md_urls + plain_urls))
+
+
+
+def collect_urls(dialog: Dialog) -> List[Tuple[str, str, str]]:
+
+  urls_info = []
+
+  for answer in dialog.answers:
+
+
+
+    for url in extract_urls_from_text(answer.text):
+
+      urls_info.append((dialog.name, url, "TEXT"))
+
+
+
+    for button in answer.buttons:
+
+      if button.payload and _is_url(button.payload):
+
+        urls_info.append((dialog.name, button.payload, "BUTTON"))
+
+  return urls_info
+
+
+
+def print_dialog(dialog: Dialog):
+
+  print(f"Dialog: {dialog.name} (ID: {dialog.id})")
+
+  for i, answer in enumerate(dialog.answers):
+
+    print(f" Answer {i}:")
+
+    print(f" Text: {answer.text}")
+
+    print(f" Buttons:")
+
+    for j, button in enumerate(answer.buttons):
+
+      print(f"      Button {j}: title='{button.title}', payload='{button.payload}'")
+
+  print("-" * 40)
+
+
+
+def generate_excel_report(urls_info: List[Tuple[str, str, str]], output_path='report.xlsx'):
+  wb = Workbook()
+
+  ws = wb.active
+
+  ws.title = "URL Report"
+
+  ws.append(["Dialog Name", "URL", "Location", "Corrected URL"])
+
+
+
+  seen_urls = set()
+
+  for dialog_name, url, location in urls_info:
+
+    if url in seen_urls:
+
+      continue
+
+    seen_urls.add(url)
+
+    ws.append([dialog_name, url, location, ""])
+
+
+
+  wb.save(output_path)
+
+  print(f"Excel report generated: {output_path}")
+
+
+
+if __name__ == "__main__":
+
+  dialogs_dir = "scope_management/dialogs"
+
+  print("Current working directory:", os.getcwd())
+
+  print("dialogs folder exists:", os.path.isdir(dialogs_dir))
+
+  print("Files in dialogs folder:", os.listdir(dialogs_dir) if os.path.isdir(dialogs_dir) else
+"N/A")
+
+  dialogs = load_dialogs_from_dir(dialogs_dir)
+
+  print(f"Loaded {len(dialogs)} dialogs")
+
+  for d in dialogs:
+
+    print(f"Dialog: {d.name}")
+
+  all_urls = []
+
+  for dialog in dialogs:
+
+    all_urls.extend(collect_urls(dialog))
+ print("broj: ", len(dialogs))
+
+ generate_excel_report(all_urls)
+
+
+
+
+name: Test Dialogs
+
+
+
+on:
+
+workflow_dispatch:
+
+
+
+jobs:
+
+test:
+
+ runs-on: ubuntu-latest
+
+
+
+ steps:
+
+  - name: Checkout main repo
+
+      uses: actions/checkout@v4
+
+
+
+  - name: Checkout dialog repo
+
+      uses: actions/checkout@v4
+
+      with:
+
+      github-server-url: https://code.rbi.tech
+
+      repository: raiffeisen/maia-bot-rbhr-raia
+
+      ref: customer-staging
+
+      token: ${{ secrets.DIALOG_REPO_TOKEN }}
+    path: bots/default/dialog_requirements/dialogs
+
+
+
+  - name: List dialogs
+
+   run: |
+
+    echo "Dialog files:"
+
+    ls -R bots/default/dialog_requirements/dialogs
+
+
+
+
+dialogs:
+
+account_statement_change_delivery_method:
+
+ topic: statements
+
+ answers:
+
+  - text: |
+
+    Način dostave izvatka za svoj tekući, žiro ili multivalutne račune možete promijeniti:
+
+    1. slanjem poruke putem mojaRBA mobilnog ili internetskog bankarstva,
+
+    2. pozivom Kontakt centru na 072 62 62 62,
+
+    3. u našoj poslovnici — pronađite najbližu poslovnicu
+[ovdje      ](https://www.rba.hr/lokacije-poslovnice-bankomati).
+
+    <bubble_split>
+
+    Moglo bi vam biti zanimljivo:
+
+   buttons:
+
+    - title: Paketi usluga s tim računima
+
+     payload: /dialog{{"dialog_id":"rba_packages_overview"}}
+
+    - title: Tekući račun
+
+     payload: /dialog{{"dialog_id":"account_current_general_info"}}
+   condition:
+
+    - not_one_of:
+
+     - conversation_subchannel_name: "MOBILE_APP"
+
+  - text: |
+
+     Ako želite promijeniti način dostave izvatka za svoje tekuće, evo kako to možete
+učiniti:
+
+
+
+     - Putem mojeRBA bankarstva: Jednostavno nam pošaljite poruku kroz mobilnu
+aplikaciju ili internetsko bankarstvo.
+
+
+
+    - Kroz chat s agentom: Možete se javiti i razgovarati s našim agentom izravno preko
+chata.
+
+
+
+    - U poslovnici: Ako vam je draže, posjetite nas u bilo kojoj poslovnici. Najbližu
+možete pronaći [ovdje         ](https://www.rba.hr/lokacije-poslovnice-bankomati).
+
+
+
+    <bubble_split>
+
+    Trebate dodatnu pomoć ili savjet?
+
+   buttons:
+
+    - title: Pošalji poruku
+
+     payload: /dialog{{"dialog_id":"authorized_message_mobile_app"}}
+
+    - title: Razgovaraj s agentom
+
+     payload: /dialog{{"dialog_id":"human_handover"}}
+
+   condition:
+
+    - conversation_subchannel_name: "MOBILE_APP"
+
+ required_variables: {}
+
+ start_actions: []
+
+ end_actions:
+
+  - internal_schedule_dialog
+ name: account_statement_change_delivery_method
+
+ samples: []
+
+ routable: false
+
+  description: This route provides instructions for changing the delivery method of
+account statements for current, giro,
+
+  or multi-currency accounts. It lists three options - sending a message via mojaRBA
+mobile or internet banking, calling
+
+  the contact center, or visiting a branch.
+
+
+
+
+dialogs:
+
+instant_payment_general_info:
+
+ topic: payments
+
+ answers:
+
+  - text: |
+
+    Instant plaćanje omogućuje da novac bude na računu primatelja gotovo odmah,
+najčešće unutar 10 sekundi.
+
+    <bubble_split>
+
+    Prilikom zadavanja naloga za plaćanje u eurima, u samom nalogu odaberite način
+plaćanja: Instant.
+
+    Usluga je dostupna 24 sata dnevno, 7 dana u tjednu, bez dodatnih troškova – uz istu
+naknadu kao za redovna plaćanja.
+
+    <bubble_split>
+    Instant plaćanje dostupno je u mojaRBA mobilnom i internetskom bankarstvu te u
+poslovnicama banke.
+
+   buttons:
+
+    - title: Postavljanje limita
+
+     payload: /dialog{{"dialog_id":"instant_payment_limit"}}
+
+   condition:
+
+    - instant_payment_general_info_invocation_count:
+
+       op: "<="
+
+       value: 1
+
+  - text: |
+
+    Želite li riješiti svoj upit s nekim od mojih kolega iz Službe za korisnike?
+
+   buttons:
+
+    - title: Da
+
+     payload: /dialog{{"dialog_id":"human_handover"}}
+
+    - title: Ne
+
+     payload: /dialog{{"dialog_id":"nps_collect_rating"}}
+
+   condition:
+
+    - instant_payment_general_info_invocation_count:
+
+       op: ">"
+
+       value: 1
+
+ required_variables: {}
+
+ start_actions: []
+
+ end_actions:
+
+  - internal_schedule_dialog
+
+ name: instant_payment_general_info
+
+ samples:
+
+  - text: instant plaćanje
+
+  - text: Cijena instant plaćanja?
+  description: This route provides general information about instant payments,
+explaining how they work, how quickly funds are transferred, their availability, cost, and
+where the service can be used. It also offers guidance on setting payment limits.
+
+
+
+
+https://jira.rbinternational.com/jira/rest/tests/1.0/project/6089300/testcases?fields=id,
+key,name
+

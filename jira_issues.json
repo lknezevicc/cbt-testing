@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-03-02 14:19:40 UTC",
+  "generated_at_iso": "2026-03-02T14:19:40.728700+00:00",
+  "project_key": null,
+  "source": "validate_dialogs",
+  "issue_count": 2,
+  "issues": [
+    {
+      "issue": {
+        "summary": "Dialog validation: account_statement_change_delivery_method - DIALOG_REFERENCE_NOT_FOUND",
+        "description": "Dialog: account_statement_change_delivery_method\nError code: DIALOG_REFERENCE_NOT_FOUND\nOccurrences: 4\nAffected values:\n- account_current_general_info\n- authorized_message_mobile_app\n- human_handover\n- rba_packages_overview",
+        "labels": [
+          "chatbot",
+          "dialog-validation",
+          "dialog_reference_not_found"
+        ],
+        "issue_type": "Bug",
+        "priority": null,
+        "metadata": {
+          "dialog_name": "account_statement_change_delivery_method",
+          "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+          "occurrences": 4,
+          "items": [
+            {
+              "dialog_name": "account_statement_change_delivery_method",
+              "answer_index": 0,
+              "content_source": "BUTTON",
+              "content_index": 0,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"rba_packages_overview\"}}",
+              "normalized_value": "rba_packages_overview",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: rba_packages_overview",
+              "status_code": null,
+              "response_time_ms": null
+            },
+            {
+              "dialog_name": "account_statement_change_delivery_method",
+              "answer_index": 0,
+              "content_source": "BUTTON",
+              "content_index": 1,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"account_current_general_info\"}}",
+              "normalized_value": "account_current_general_info",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: account_current_general_info",
+              "status_code": null,
+              "response_time_ms": null
+            },
+            {
+              "dialog_name": "account_statement_change_delivery_method",
+              "answer_index": 1,
+              "content_source": "BUTTON",
+              "content_index": 0,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"authorized_message_mobile_app\"}}",
+              "normalized_value": "authorized_message_mobile_app",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: authorized_message_mobile_app",
+              "status_code": null,
+              "response_time_ms": null
+            },
+            {
+              "dialog_name": "account_statement_change_delivery_method",
+              "answer_index": 1,
+              "content_source": "BUTTON",
+              "content_index": 1,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"human_handover\"}}",
+              "normalized_value": "human_handover",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: human_handover",
+              "status_code": null,
+              "response_time_ms": null
+            }
+          ]
+        }
+      },
+      "dedup_key": "fff68f87858421fbe0eeb5c105c8712bce1500604dcf87fefb9ec0cf5c3a0fee",
+      "dedup_label": "chatbot-dedup-fff68f87858421fb",
+      "jira_payload": null
+    },
+    {
+      "issue": {
+        "summary": "Dialog validation: instant_payment_general_info - DIALOG_REFERENCE_NOT_FOUND",
+        "description": "Dialog: instant_payment_general_info\nError code: DIALOG_REFERENCE_NOT_FOUND\nOccurrences: 3\nAffected values:\n- human_handover\n- instant_payment_limit\n- nps_collect_rating",
+        "labels": [
+          "chatbot",
+          "dialog-validation",
+          "dialog_reference_not_found"
+        ],
+        "issue_type": "Bug",
+        "priority": null,
+        "metadata": {
+          "dialog_name": "instant_payment_general_info",
+          "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+          "occurrences": 3,
+          "items": [
+            {
+              "dialog_name": "instant_payment_general_info",
+              "answer_index": 0,
+              "content_source": "BUTTON",
+              "content_index": 0,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"instant_payment_limit\"}}",
+              "normalized_value": "instant_payment_limit",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: instant_payment_limit",
+              "status_code": null,
+              "response_time_ms": null
+            },
+            {
+              "dialog_name": "instant_payment_general_info",
+              "answer_index": 1,
+              "content_source": "BUTTON",
+              "content_index": 0,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"human_handover\"}}",
+              "normalized_value": "human_handover",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: human_handover",
+              "status_code": null,
+              "response_time_ms": null
+            },
+            {
+              "dialog_name": "instant_payment_general_info",
+              "answer_index": 1,
+              "content_source": "BUTTON",
+              "content_index": 1,
+              "reference_type": "DIALOG",
+              "value": "/dialog{{\"dialog_id\":\"nps_collect_rating\"}}",
+              "normalized_value": "nps_collect_rating",
+              "error_code": "DIALOG_REFERENCE_NOT_FOUND",
+              "error_message": "Referenced dialog does not exist: nps_collect_rating",
+              "status_code": null,
+              "response_time_ms": null
+            }
+          ]
+        }
+      },
+      "dedup_key": "91b114fc4ca5a58798e496280f684ef00c16a0aecbe6e1b2f13333062991efd0",
+      "dedup_label": "chatbot-dedup-91b114fc4ca5a587",
+      "jira_payload": null
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+name: Dialog Validation Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-dialogs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout dialog repo
+        uses: actions/checkout@v4
+        with:
+          github-server-url: https://code.rbi.tech
+          repository: raiffeisen/maia-bot-rbhr-raia
+          ref: customer-staging
+          token: ${{ secrets.DIALOG_REPO_TOKEN }}
+          path: dialog-repo
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Resolve dialogs directory
+        id: resolve-dialogs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -d "dialog-repo/bots/default/dialog_requirements/dialogs" ]; then
+            echo "dialogs_dir=dialog-repo/bots/default/dialog_requirements/dialogs" >> "$GITHUB_OUTPUT"
+          else
+            echo "Could not locate dialogs directory in checked out repo"
+            find dialog-repo -maxdepth 4 -type d | sort
+            exit 1
+          fi
+
+      - name: List dialogs
+        shell: bash
+        run: |
+          echo "Dialog files:"
+          ls -R "${{ steps.resolve-dialogs.outputs.dialogs_dir }}"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate timestamped report names
+        id: names
+        shell: bash
+        run: |
+          stamp="$(date -u +'%Y-%m-%d_%H-%M-%S_UTC')"
+          echo "pdf_name=dialog_validation_report_${stamp}.pdf" >> "$GITHUB_OUTPUT"
+          echo "summary_name=validation_summary_${stamp}.json" >> "$GITHUB_OUTPUT"
+          echo "jira_name=jira_like_issues_${stamp}.json" >> "$GITHUB_OUTPUT"
+          echo "log_name=dialog_validation_log_${stamp}.log" >> "$GITHUB_OUTPUT"
+
+      - name: Run dialog/link validation and generate PDF
+        shell: bash
+        run: |
+          python -m chatbot_utils.validate_dialogs \
+            --dialogs-dir "${{ steps.resolve-dialogs.outputs.dialogs_dir }}" \
+            --summary-output "${{ steps.names.outputs.summary_name }}" \
+            --jira-output "${{ steps.names.outputs.jira_name }}" \
+            --pdf-output "${{ steps.names.outputs.pdf_name }}" \
+            --log-level INFO
+
+      - name: Prepare timestamped log file
+        shell: bash
+        run: |
+          if [ -f "logs/validate_dialogs.log" ]; then
+            cp "logs/validate_dialogs.log" "${{ steps.names.outputs.log_name }}"
+          else
+            echo "Log file not found" > "${{ steps.names.outputs.log_name }}"
+          fi
+
+      - name: Upload PDF report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-validation-pdf-${{ github.run_number }}
+          path: ${{ steps.names.outputs.pdf_name }}
+          if-no-files-found: error
+
+      - name: Upload JSON artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-validation-json-${{ github.run_number }}
+          path: |
+            ${{ steps.names.outputs.summary_name }}
+            ${{ steps.names.outputs.jira_name }}
+          if-no-files-found: error
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dialog-validation-log-${{ github.run_number }}
+          path: ${{ steps.names.outputs.log_name }}
+          if-no-files-found: error

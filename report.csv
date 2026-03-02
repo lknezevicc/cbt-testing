@@ -1,0 +1,8 @@
+dialog_name,answer_index,section,section_index,reference_type,value,error
+account_statement_change_delivery_method,0,BUTTON,0,DIALOG,rba_packages_overview,Referenced dialog does not exist
+account_statement_change_delivery_method,0,BUTTON,1,DIALOG,account_current_general_info,Referenced dialog does not exist
+account_statement_change_delivery_method,1,BUTTON,0,DIALOG,authorized_message_mobile_app,Referenced dialog does not exist
+account_statement_change_delivery_method,1,BUTTON,1,DIALOG,human_handover,Referenced dialog does not exist
+instant_payment_general_info,0,BUTTON,0,DIALOG,instant_payment_limit,Referenced dialog does not exist
+instant_payment_general_info,1,BUTTON,0,DIALOG,human_handover,Referenced dialog does not exist
+instant_payment_general_info,1,BUTTON,1,DIALOG,nps_collect_rating,Referenced dialog does not exist

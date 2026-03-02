@@ -1,0 +1,453 @@
+name: Test Dialogs
+
+
+on: workflow_dispatch:
+
+
+jobs: test: runs-on: ubuntu-latest
+
+
+steps:
+
+
+   name: Checkout main repo uses: actions/checkout@v4
+   name: Checkout dialog repo uses: actions/checkout@v4 with: github-server-url: https://
+   code.rbi.tech repository: raiffeisen/maia-bot-rbhr-raia ref: customer-staging token:
+   ${{ secrets.DIALOG_REPO_TOKEN }} path: bots/default/dialog_requirements/dialogs
+   name: List dialogs run: | echo "Dialog files:" ls -R bots/default/dialog_requirements/dialogs
+
+
+""" Generated based on: https://rbhr-raia.maia-staging.rbigroup.cloud/docs """
+
+
+from future import annotations import datetime from dataclasses import dataclass, field from
+enum import Enum from typing import Any, Dict, List, Optional, Union
+
+
+def _parse_iso_dt(value: Optional[str]) -> Optional[datetime.datetime]: """ Parse ISO-8601
+datetime strings (supports trailing 'Z') into datetime objects.
+
+
+Args: value: ISO-8601 string or None.
+
+
+Returns: datetime.datetime or None. """ if not value: return None s = value.strip() try: if
+s.endswith("Z"): s = s[:-1] + "+00:00" return datetime.datetime.fromisoformat(s) except
+Exception: try: return datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ") except
+Exception: try: return datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ") except
+Exception: return None
+
+
+class VambMessageSender(str, Enum): """Sender of the message.""" bot = "bot" user = "user"
+agent = "agent"
+
+
+class VambMessageButtonIcon(str, Enum): """Icon types for a Vamb message button.""" info =
+"info" person = "person"
+
+
+class VambMessageConversationClosedReason(str, Enum): """Reasons for closing a
+conversation.""" bot_not_reachable = "bot_not_reachable" user_not_reachable =
+"user_not_reachable" agent_not_reachable = "agent_not_reachable" user_exited = "user_exited"
+agent_exited = "agent_exited" other = "other"
+@dataclass class VambMessageSenderInfo: """Additional info describing sender (if available)."""
+name: Optional[str] = None avatar_url: Optional[str] = None
+
+
+@classmethod def from_dict(cls, data: Optional[Dict[str, Any]]) ->
+Optional["VambMessageSenderInfo"]: if data is None: return None return
+cls( name=data.get("name"), avatar_url=data.get("avatar_url"), )
+
+
+@dataclass class VambMessageButton: """ Button attached to a message in the conversation
+feed.
+
+
+Attributes: title: Display text of the button. payload: Payload string sent when button is clicked.
+icon: Optional icon type. auto_disable: Optional flag to auto-disable after new message. """ title:
+str payload: str icon: Optional[VambMessageButtonIcon] = None auto_disable: Optional[bool] =
+None
+
+
+@classmethod def from_dict(cls, data: Dict[str, Any]) -> "VambMessageButton": icon_raw =
+data.get("icon") icon = VambMessageButtonIcon(icon_raw) if isinstance(icon_raw, str) else None
+return cls( title=data["title"], payload=data["payload"], icon=icon,
+auto_disable=data.get("auto_disable"), )
+
+
+@dataclass class VambMessageDeeplink: """ Deeplink to open by frontend when message is
+rendered.
+
+
+Attributes: title: Human-readable title of the deeplink. path: Path to open. automatic_open: If
+True/omitted, open automatically; False disables auto-open. open_delay_ms: Optional delay
+before opening (milliseconds). """ title: str path: str automatic_open: bool = False open_delay_ms:
+Optional[int] = None
+
+
+@classmethod def from_dict(cls, data: Optional[Dict[str, Any]]) ->
+Optional["VambMessageDeeplink"]: if data is None: return None return cls( title=data["title"],
+path=data["path"], automatic_open=bool(data.get("automatic_open", False)),
+open_delay_ms=data.get("open_delay_ms"), )
+
+
+@dataclass class VambMessage: """ Represents a message exchanged in a conversation.
+
+
+Attributes: id: Globally unique ID. timestamp: ISO-8601 datetime. schema_version: Schema
+version (default '1.0'). sender: Sender (bot/user/agent). sender_info: Optional additional sender
+info. rich_text: Markdown representation of message. plain_text: Plain text representation.
+buttons: Optional list of buttons to render. deeplink: Optional deeplink to open. widget: Optional
+raw widget payload (dict). expects_answer: Optional flag indicating bot expects immediate
+answer. conversation_closed: Optional bool or reason enum. ssml_text: Optional SSML XML text.
+""" id: str timestamp: datetime.datetime schema_version: str = "1.0" sender:
+VambMessageSender = VambMessageSender.bot sender_info:
+Optional[VambMessageSenderInfo] = None rich_text: str = "" plain_text: str = "" buttons:
+Optional[List[VambMessageButton]] = None deeplink: Optional[VambMessageDeeplink] = None
+widget: Optional[Dict[str, Any]] = None expects_answer: Optional[bool] = None
+conversation_closed: Optional[Union[bool, VambMessageConversationClosedReason]] = None
+ssml_text: Optional[str] = None
+
+
+@classmethod def from_dict(cls, data: Dict[str, Any]) -> "VambMessage": sender =
+VambMessageSender(data["sender"]) if isinstance(data.get("sender"), str) else
+VambMessageSender.bot buttons_raw = data.get("buttons") buttons =
+[VambMessageButton.from_dict(b) for b in buttons_raw] if isinstance(buttons_raw, list) else
+None deeplink = VambMessageDeeplink.from_dict(data.get("deeplink")) sender_info =
+VambMessageSenderInfo.from_dict(data.get("sender_info"))
+
+
+conv_closed_raw = data.get("conversation_closed") if isinstance(conv_closed_raw, str):
+conv_closed: Optional[Union[bool, VambMessageConversationClosedReason]] =
+VambMessageConversationClosedReason(conv_closed_raw) elif isinstance(conv_closed_raw,
+bool): conv_closed = conv_closed_raw else: conv_closed = None
+
+
+timestamp = _parse_iso_dt(data.get("timestamp")) or datetime.datetime.utcnow()
+
+
+return cls( id=str(data["id"]), timestamp=timestamp,
+schema_version=str(data.get("schema_version", "1.0")), sender=sender, sender_info=sender_info,
+rich_text=str(data.get("rich_text", "")), plain_text=str(data.get("plain_text", "")), buttons=buttons,
+deeplink=deeplink, widget=data.get("widget"), expects_answer=data.get("expects_answer"),
+conversation_closed=conv_closed, ssml_text=data.get("ssml_text"), )
+
+
+@dataclass class VambMessageMetadata: """ Metadata associated with a VambMessage.
+
+
+Attributes: message_id: ID of the message described by this metadata. maia_metadata_version:
+Version of metadata schema. maia_metadata: Arbitrary metadata related to MAIA inference
+logic. """ message_id: str maia_metadata_version: str maia_metadata: Any
+
+
+@classmethod def from_dict(cls, data: Dict[str, Any]) -> "VambMessageMetadata": return
+cls( message_id=str(data["message_id"]),
+maia_metadata_version=str(data["maia_metadata_version"]),
+maia_metadata=data.get("maia_metadata"), )
+
+
+@dataclass class VambGetConversationMessagesResponse: """ Response model for retrieving
+messages from a conversation.
+
+
+Attributes: conversation_id: Conversation ID. handed_to_agent: Whether handover to human
+agent succeeded. mirrored_to_infobip: Intent to mirror bot messages to Infobip. after: Optional
+filter timestamp used in GET endpoint. messages: List of messages.
+messages_schema_version: Schema version (default '1.0'). messages_metadata: Optional list of
+message metadata. """ conversation_id: str messages: List[VambMessage] handed_to_agent:
+Optional[bool] = None mirrored_to_infobip: Optional[bool] = None after:
+Optional[datetime.datetime] = None messages_schema_version: str = "1.0" messages_metadata:
+Optional[List[VambMessageMetadata]] = None
+
+
+@classmethod def from_dict(cls, data: Dict[str, Any]) ->
+"VambGetConversationMessagesResponse": messages = [VambMessage.from_dict(m) for m in
+data.get("new_messages", [])] metadata_raw = data.get("new_messages_metadata")
+messages_metadata = [VambMessageMetadata.from_dict(m) for m in metadata_raw] if
+isinstance(metadata_raw, list) else None
+
+
+return cls( conversation_id=str(data["conversation_id"]), messages=messages,
+handed_to_agent=data.get("handed_to_agent"),
+mirrored_to_infobip=data.get("mirrored_to_infobip"), after=_parse_iso_dt(data.get("after")),
+messages_schema_version=str(data.get("messages_schema_version", "1.0")),
+messages_metadata=messages_metadata, )
+
+
+import os import requests import pickle import time from abc import ABC, abstractmethod from
+typing import Any, Dict, List, Optional
+
+
+from .vamb_models import ( VambGetConversationMessagesResponse, VambMessage,
+VambMessageMetadata, )
+
+
+class JWTVambManager: """ Singleton class for managing JWT tokens for the Vamb API.
+
+
+Handles obtaining and refreshing anonymous JWT tokens valid for 1 hour. Tokens are persisted
+to a local pickle file and invalidated if older than 1 hour or if the stored expiration timestamp is
+reached. """ _instance: Optional["JWTVambManager"] = None _token_file: str = "tokens.pkl"
+_base_url: str = "https://rbhr-raia.maia-staging.rbigroup.cloud/vamb-channel"
+
+
+def new(cls) -> "JWTVambManager": if cls._instance is None: cls._instance =
+super(JWTVambManager, cls).new(cls) cls._instance._tokens = cls._load_tokens() return
+cls._instance
+
+
+@staticmethod def _load_tokens() -> Dict[str, Any]: """ Load tokens from disk if the file exists and
+is younger than 1 hour, and the stored expiration is not passed. """ if not
+os.path.exists(JWTVambManager._token_file): return {} file_age_seconds = time.time() -
+os.path.getmtime(JWTVambManager._token_file) if file_age_seconds >= 3600: try:
+os.remove(JWTVambManager._token_file) except OSError: pass return {} try: with
+open(JWTVambManager._token_file, "rb") as file: tokens: Dict[str, Any] = pickle.load(file) except
+Exception: try: os.remove(JWTVambManager._token_file) except OSError: pass return {}
+expires_at = tokens.get("expires_at") if isinstance(expires_at, (int, float)) and time.time() >=
+float(expires_at): try: os.remove(JWTVambManager._token_file) except OSError: pass return {}
+return tokens
+@staticmethod def _save_tokens(tokens: Dict[str, Any]) -> None: """Persist tokens to disk.""" with
+open(JWTVambManager._token_file, "wb") as file: pickle.dump(tokens, file)
+
+
+def _get_anonymous_token(self) -> None: """ Request a new anonymous token from the API and
+save it locally.
+
+
+Raises:
+    Exception: If token request fails.
+"""
+response = requests.get(f"{self._base_url}/anonymous-token")
+if response.status_code == 200:
+    token_data = response.json()
+    self._tokens = {
+       "access_token": token_data["token"],
+       "refresh_token": token_data.get("refresh_token"),
+       "expires_at": time.time() + 3600, # 1 hour validity
+    }
+    self._save_tokens(self._tokens)
+else:
+    raise Exception(f"Failed to get anonymous token: HTTP {response.status_code}")
+def _refresh_anonymous_token(self) -> None: """ Refresh the existing anonymous token using the
+stored refresh token.
+
+
+Raises:
+    Exception: If no refresh token is available or if refresh fails.
+"""
+refresh_token = self._tokens.get("refresh_token")
+if not refresh_token:
+    raise Exception("No refresh token available to refresh anonymous token.")
+headers = {"x-anonymous-refresh-token": refresh_token}
+response = requests.get(f"{self._base_url}/refreshed-anonymous-token", headers=headers)
+if response.status_code == 200:
+    token_data = response.json()
+    self._tokens["access_token"] = token_data["token"]
+    self._tokens["expires_at"] = time.time() + 3600
+    self._save_tokens(self._tokens)
+else:
+    raise Exception(f"Failed to refresh anonymous token: HTTP {response.status_code}")
+def get_access_token(self) -> str: """ Retrieve a valid access token, refreshing or reissuing if
+necessary.
+
+
+Returns:
+    str: Valid access token.
+"""
+expires_at = self._tokens.get("expires_at")
+if "access_token" not in self._tokens or not isinstance(expires_at, (int, float)) or time.time() >=
+float(expires_at):
+    try:
+       if self._tokens.get("refresh_token"):
+          self._refresh_anonymous_token()
+     else:
+       self._get_anonymous_token()
+  except Exception:
+     self._get_anonymous_token()
+return str(self._tokens["access_token"])
+class ConversationLog: """ Log of a conversation, including messages and metadata. """ def
+init(self, conversation_id: str): self.conversation_id = conversation_id self.messages:
+List[VambMessage] = [] self.metadata: List[VambMessageMetadata] = []
+
+
+def add(self, message: VambMessage, metadata: Optional[VambMessageMetadata]) -> None:
+"""Append a message and its metadata (if present).""" self.messages.append(message) if
+metadata: self.metadata.append(metadata)
+
+
+def repr(self) -> str: return f"ConversationLog(conversation_id={self.conversation_id},
+messages={len(self.messages)}, metadata={len(self.metadata)})"
+
+
+class MetadataManager: """ Manages storage and retrieval of conversation logs and metadata. """
+def init(self): self.conversation_logs: Dict[str, ConversationLog] = {}
+
+
+def store_conversation(self, response: VambGetConversationMessagesResponse) -> None: """
+Store messages and corresponding metadata from API response.
+
+
+Args:
+    response: Parsed VAMB conversation messages response.
+"""
+cid = response.conversation_id
+log = self.conversation_logs.setdefault(cid, ConversationLog(cid))
+
+meta_by_id: Dict[str, VambMessageMetadata] = {}
+if response.messages_metadata:
+   meta_by_id = {m.message_id: m for m in response.messages_metadata}
+
+for msg in response.messages:
+  log.add(msg, meta_by_id.get(msg.id))
+def get_conversation_log(self, conversation_id: str) -> Optional[ConversationLog]: """Retrieve
+stored conversation log by ID.""" return self.conversation_logs.get(conversation_id)
+
+
+def repr(self) -> str: return f"MetadataManager(conversations={len(self.conversation_logs)})"
+
+
+class VambConversationObserver(ABC): """ Interface for observing VambConversation events. """
+@abstractmethod def on_conversation_initiated(self, conversation_id: str) -> None: """Called
+when a conversation is successfully initiated.""" pass
+
+
+@abstractmethod def on_message_sent(self, message: str) -> None: """Called when a message
+is successfully sent.""" pass
+class VambConversation: """ Manages Vamb conversations, utilizing JWTVambManager for
+token management.
+
+
+Attributes: jwt_manager: Token manager. metadata_manager: Metadata manager for storing
+logs. observers: Registered observers. conversation_id: Current conversation ID, if initiated. """
+def init(self, jwt_manager: JWTVambManager, metadata_manager: MetadataManager):
+self.jwt_manager = jwt_manager self.metadata_manager = metadata_manager self.observers:
+List[VambConversationObserver] = [] self.conversation_id: Optional[str] = None
+
+
+def add_observer(self, observer: VambConversationObserver) -> None: """Register an observer to
+receive conversation events.""" self.observers.append(observer)
+
+
+def _notify_conversation_initiated(self) -> None: for observer in self.observers:
+observer.on_conversation_initiated(self.conversation_id or "")
+
+
+def _notify_message_sent(self, message: str) -> None: for observer in self.observers:
+observer.on_message_sent(message)
+
+
+def initiate_conversation(self) -> None: """ Initiate a new conversation with the Vamb API.
+
+
+Raises: Exception: If the conversation initiation fails. """ url = f"{JWTVambManager._base_url}/
+conversation" headers = { "x-anonymous-token": self.jwt_manager.get_access_token(), "Content-
+Type": "application/json", } payload = {"mirror_to_infobip": False}
+
+
+response = requests.post(url, headers=headers, json=payload) if response.status_code == 200:
+data = response.json() self.conversation_id = data["conversation_id"]
+self._notify_conversation_initiated() else: raise Exception(f"Failed to initiate conversation: HTTP
+{response.status_code}")
+
+
+def send_message(self, message: str) -> VambGetConversationMessagesResponse: """ Send a
+text message to the current conversation.
+
+
+Returns: VambGetConversationMessagesResponse: Typed response containing messages and
+metadata.
+
+
+Raises: Exception: If no conversation is initiated or if the send fails. """ if not self.conversation_id:
+raise Exception("No conversation initiated")
+
+
+url = f"{JWTVambManager._base_url}/conversation-messages/{self.conversation_id}" headers =
+{ "x-anonymous-token": self.jwt_manager.get_access_token(), "Content-Type": "application/json", }
+payload = { "text": message, "input_type": "text", "mirror_to_infobip": False, }
+response = requests.post(url, headers=headers, json=payload) if response.status_code == 200:
+parsed = VambGetConversationMessagesResponse.from_dict(response.json())
+self.metadata_manager.store_conversation(parsed) self._notify_message_sent(message) return
+parsed else: try: server_msg = response.json() except Exception: server_msg = response.text
+raise Exception(f"Failed to send message: HTTP {response.status_code}, server response:
+{server_msg}")
+
+
+from chatbot_utils.vamb import JWTVambManager, VambConversation, MetadataManager
+
+
+metadata_manager = MetadataManager() jwt_manager = JWTVambManager() conversation =
+VambConversation(jwt_manager, metadata_manager)
+
+
+try: conversation.initiate_conversation() res = conversation.send_message("Bok, RAIA!")
+print(res) except Exception as e: print(e)
+
+
+from setuptools import setup, find_packages
+
+
+setup( name="chatbot_utils", version="0.0.1", packages=find_packages() )
+
+
+from dotenv import load_dotenv load_dotenv()
+
+
+from .github import ( fetch_file, fetch_file_text, get_files_and_dirs, get_dialog_requirements,
+get_dialog_requirements_map, write_dialog_requirements_binary,
+read_dialog_requirements_binary, fetch_last_commits, get_live_dialog_requirements, )
+
+
+from .infobip import ( IBConversationsFilter, INFOBIP_API_BASE_URL, get_conversations, )
+
+
+from .vamb_models import *
+
+
+from .vamb import ( JWTVambManager, ConversationLog, MetadataManager,
+VambConversationObserver, VambConversation, )
+
+
+from .scope_models import *
+
+
+from .scope import *
+
+
+all = [
+github
+"fetch_file", "fetch_file_text", "get_files_and_dirs", "get_dialog_requirements",
+"get_dialog_requirements_map", "write_dialog_requirements_binary",
+"read_dialog_requirements_binary", "fetch_last_commits", "get_live_dialog_requirements",
+
+
+
+infobip
+"IBConversationsFilter", "INFOBIP_API_BASE_URL", "get_conversations",
+
+
+
+vamb_models
+"VambMessageSender", "VambMessageButtonIcon",
+"VambMessageConversationClosedReason", "VambMessageSenderInfo", "VambMessageButton",
+"VambMessageDeeplink", "VambMessage", "VambMessageMetadata",
+"VambGetConversationMessagesResponse",
+
+
+
+vamb
+"JWTVambManager", "MessageMetadata", "Message", "ConversationLog", "MetadataManager",
+"VambConversationObserver", "VambConversation",
+
+
+
+scope_models
+"parse_yaml_to_dialog", "parse_yaml_to_answer", "parse_yaml_to_override", "Dialog", "Answer",
+"ContextVariable", "Override", "Variable", "VariableType", "Sample",
+
+
+
+scope
+"get_dialog_scope", "RBHR_MAIA_GITHUB_REPO_URL", ]
+

@@ -1,0 +1,46 @@
+dialogs:
+  instant_payment_general_info:
+    topic: payments
+    answers:
+      - text: |
+          Instant plaćanje omogućuje da novac bude na računu primatelja gotovo odmah, najčešće unutar 10 sekundi.
+
+          <bubble_split>
+
+          Prilikom zadavanja naloga za plaćanje u eurima, u samom nalogu odaberite način plaćanja: Instant.
+          Usluga je dostupna 24 sata dnevno, 7 dana u tjednu, bez dodatnih troškova – uz istu naknadu kao za redovna plaćanja.
+
+          <bubble_split>
+
+          Instant plaćanje dostupno je u mojaRBA mobilnom i internetskom bankarstvu te u poslovnicama banke.
+        buttons:
+          - title: Postavljanje limita
+            payload: /dialog{{"dialog_id":"instant_payment_limit"}}
+        condition:
+          - instant_payment_general_info_invocation_count:
+              op: "<="
+              value: 1
+
+      - text: |
+          Želite li riješiti svoj upit s nekim od mojih kolega iz Službe za korisnike?
+        buttons:
+          - title: Da
+            payload: /dialog{{"dialog_id":"human_handover"}}
+          - title: Ne
+            payload: /dialog{{"dialog_id":"nps_collect_rating"}}
+        condition:
+          - instant_payment_general_info_invocation_count:
+              op: ">"
+              value: 1
+
+    required_variables: {}
+    start_actions: []
+    end_actions:
+      - internal_schedule_dialog
+    name: instant_payment_general_info
+    samples:
+      - text: instant plaćanje
+      - text: Cijena instant plaćanja?
+    description: This route provides general information about instant payments, explaining how they
+      work, how quickly funds are transferred, their availability, cost, and where the
+      service can be used. It also offers guidance on setting payment limits.

@@ -1,0 +1,65 @@
+[
+    {
+        "dialog_name": "account_statement_change_delivery_method",
+        "answer_index": 0,
+        "section": "BUTTON",
+        "section_index": 0,
+        "reference_type": "DIALOG",
+        "value": "rba_packages_overview",
+        "error_message": "Referenced dialog does not exist"
+    },
+    {
+        "dialog_name": "account_statement_change_delivery_method",
+        "answer_index": 0,
+        "section": "BUTTON",
+        "section_index": 1,
+        "reference_type": "DIALOG",
+        "value": "account_current_general_info",
+        "error_message": "Referenced dialog does not exist"
+    },
+    {
+        "dialog_name": "account_statement_change_delivery_method",
+        "answer_index": 1,
+        "section": "BUTTON",
+        "section_index": 0,
+        "reference_type": "DIALOG",
+        "value": "authorized_message_mobile_app",
+        "error_message": "Referenced dialog does not exist"
+    },
+    {
+        "dialog_name": "account_statement_change_delivery_method",
+        "answer_index": 1,
+        "section": "BUTTON",
+        "section_index": 1,
+        "reference_type": "DIALOG",
+        "value": "human_handover",
+        "error_message": "Referenced dialog does not exist"
+    },
+    {
+        "dialog_name": "instant_payment_general_info",
+        "answer_index": 0,
+        "section": "BUTTON",
+        "section_index": 0,
+        "reference_type": "DIALOG",
+        "value": "instant_payment_limit",
+        "error_message": "Referenced dialog does not exist"
+    },
+    {
+        "dialog_name": "instant_payment_general_info",
+        "answer_index": 1,
+        "section": "BUTTON",
+        "section_index": 0,
+        "reference_type": "DIALOG",
+        "value": "human_handover",
+        "error_message": "Referenced dialog does not exist"
+    },
+    {
+        "dialog_name": "instant_payment_general_info",
+        "answer_index": 1,
+        "section": "BUTTON",
+        "section_index": 1,
+        "reference_type": "DIALOG",
+        "value": "nps_collect_rating",
+        "error_message": "Referenced dialog does not exist"
+    }
+]

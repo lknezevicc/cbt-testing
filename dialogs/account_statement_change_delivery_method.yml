@@ -1,0 +1,56 @@
+dialogs:
+  account_statement_change_delivery_method:
+    topic: statements
+    answers:
+      - text: |
+          Način dostave izvatka za svoj tekući, žiro ili multivalutne račune možete promijeniti:
+
+          1. slanjem poruke putem mojaRBA mobilnog ili internetskog bankarstva,
+
+          2. pozivom Kontakt centru na 072 62 62 62,
+
+          3. u našoj poslovnici — pronađite najbližu poslovnicu [ovdje](https://www.rba.hr/lokacije-poslovnice-bankomati).
+
+          <bubble_split>
+
+          Moglo bi vam biti zanimljivo:
+        buttons:
+          - title: Paketi usluga s tim računima
+            payload: /dialog{{"dialog_id":"rba_packages_overview"}}
+          - title: Tekući račun
+            payload: /dialog{{"dialog_id":"account_current_general_info"}}
+        condition:
+          - not_one_of:
+              - conversation_subchannel_name: "MOBILE_APP"
+
+      - text: |
+          Ako želite promijeniti način dostave izvatka za svoje tekuće, evo kako to možete učiniti:
+
+          - Putem mojeRBA bankarstva: Jednostavno nam pošaljite poruku kroz mobilnu aplikaciju ili internetsko bankarstvo.
+
+          - Kroz chat s agentom: Možete se javiti i razgovarati s našim agentom izravno preko chata.
+
+          - U poslovnici: Ako vam je draže, posjetite nas u bilo kojoj poslovnici. Najbližu možete pronaći [ovdje](https://www.rba.hr/lokacije-poslovnice-bankomati).
+
+          <bubble_split>
+
+          Trebate dodatnu pomoć ili savjet?
+        buttons:
+          - title: Pošalji poruku
+            payload: /dialog{{"dialog_id":"authorized_message_mobile_app"}}
+          - title: Razgovaraj s agentom
+            payload: /dialog{{"dialog_id":"human_handover"}}
+        condition:
+          - conversation_subchannel_name: "MOBILE_APP"
+
+    required_variables: {}
+    start_actions: []
+    end_actions:
+      - internal_schedule_dialog
+    name: account_statement_change_delivery_method
+    samples: []
+    routable: false
+    description: This route provides instructions for changing the delivery method of account statements
+      for current, giro, or multi-currency accounts. It lists three options - sending a
+      message via mojaRBA mobile or internet banking, calling the contact center, or
+      visiting a branch.

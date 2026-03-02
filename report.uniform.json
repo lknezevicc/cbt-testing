@@ -1,0 +1,213 @@
+{
+  "meta": {
+    "generated_at": "2026-02-25T16:18:36.864022+00:00",
+    "dialog_count": 2,
+    "total_checks": 9,
+    "passed_checks": 2,
+    "failed_checks": 7,
+    "is_clean": false
+  },
+  "summary_by_type": {
+    "url": {
+      "total": 2,
+      "failed": 0
+    },
+    "dialog": {
+      "total": 7,
+      "failed": 7
+    }
+  },
+  "issues": [
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 0,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "value": "rba_packages_overview",
+      "error_message": "Referenced dialog does not exist"
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 0,
+      "section": "BUTTON",
+      "section_index": 1,
+      "reference_type": "DIALOG",
+      "value": "account_current_general_info",
+      "error_message": "Referenced dialog does not exist"
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "value": "authorized_message_mobile_app",
+      "error_message": "Referenced dialog does not exist"
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 1,
+      "reference_type": "DIALOG",
+      "value": "human_handover",
+      "error_message": "Referenced dialog does not exist"
+    },
+    {
+      "dialog_name": "instant_payment_general_info",
+      "answer_index": 0,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "value": "instant_payment_limit",
+      "error_message": "Referenced dialog does not exist"
+    },
+    {
+      "dialog_name": "instant_payment_general_info",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "value": "human_handover",
+      "error_message": "Referenced dialog does not exist"
+    },
+    {
+      "dialog_name": "instant_payment_general_info",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 1,
+      "reference_type": "DIALOG",
+      "value": "nps_collect_rating",
+      "error_message": "Referenced dialog does not exist"
+    }
+  ],
+  "checks": [
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 0,
+      "section": "TEXT",
+      "section_index": 0,
+      "reference_type": "URL",
+      "source_value": "https://www.rba.hr/lokacije-poslovnice-bankomati",
+      "normalized_value": "https://www.rba.hr/lokacije-poslovnice-bankomati",
+      "check_type": "url",
+      "is_valid": true,
+      "status_code": 200,
+      "error_message": null,
+      "response_time_ms": 318
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 0,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"rba_packages_overview\"}}",
+      "normalized_value": "rba_packages_overview",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 0,
+      "section": "BUTTON",
+      "section_index": 1,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"account_current_general_info\"}}",
+      "normalized_value": "account_current_general_info",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 1,
+      "section": "TEXT",
+      "section_index": 0,
+      "reference_type": "URL",
+      "source_value": "https://www.rba.hr/lokacije-poslovnice-bankomati",
+      "normalized_value": "https://www.rba.hr/lokacije-poslovnice-bankomati",
+      "check_type": "url",
+      "is_valid": true,
+      "status_code": 200,
+      "error_message": null,
+      "response_time_ms": 318
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"authorized_message_mobile_app\"}}",
+      "normalized_value": "authorized_message_mobile_app",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    },
+    {
+      "dialog_name": "account_statement_change_delivery_method",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 1,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"human_handover\"}}",
+      "normalized_value": "human_handover",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    },
+    {
+      "dialog_name": "instant_payment_general_info",
+      "answer_index": 0,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"instant_payment_limit\"}}",
+      "normalized_value": "instant_payment_limit",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    },
+    {
+      "dialog_name": "instant_payment_general_info",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 0,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"human_handover\"}}",
+      "normalized_value": "human_handover",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    },
+    {
+      "dialog_name": "instant_payment_general_info",
+      "answer_index": 1,
+      "section": "BUTTON",
+      "section_index": 1,
+      "reference_type": "DIALOG",
+      "source_value": "/dialog{{\"dialog_id\":\"nps_collect_rating\"}}",
+      "normalized_value": "nps_collect_rating",
+      "check_type": "dialog",
+      "is_valid": false,
+      "status_code": null,
+      "error_message": "Referenced dialog does not exist",
+      "response_time_ms": null
+    }
+  ]
+}

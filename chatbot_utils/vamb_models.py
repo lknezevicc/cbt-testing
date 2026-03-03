@@ -115,6 +115,7 @@ class VambMessage:
     expects_answer: Optional[bool] = None
     conversation_closed: Optional[Union[bool, VambMessageConversationClosedReason]] = None
     ssml_text: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "VambMessage":
@@ -156,6 +157,7 @@ class VambMessage:
             expects_answer=data.get("expects_answer"),
             conversation_closed=conv_closed,
             ssml_text=data.get("ssml_text"),
+            metadata=data.get("metadata") if isinstance(data.get("metadata"), dict) else None,
         )
 
 
@@ -168,8 +170,8 @@ class VambMessageMetadata:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "VambMessageMetadata":
         return cls(
-            message_id=str(data["message_id"]),
-            maia_metadata_version=str(data["maia_metadata_version"]),
+            message_id=str(data.get("message_id", "")),
+            maia_metadata_version=str(data.get("maia_metadata_version", "1.0")),
             maia_metadata=data.get("maia_metadata"),
         )
 
@@ -186,17 +188,47 @@ class VambGetConversationMessagesResponse:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "VambGetConversationMessagesResponse":
-        messages = [VambMessage.from_dict(m) for m in data.get("new_messages", [])]
+        raw_messages = data.get("new_messages")
+        if not isinstance(raw_messages, list):
+            raw_messages = data.get("NewMessagesWithVerboseInfo")
+        if not isinstance(raw_messages, list):
+            raw_messages = []
+
+        messages = [VambMessage.from_dict(m) for m in raw_messages]
 
         metadata_raw = data.get("new_messages_metadata")
-        messages_metadata = [VambMessageMetadata.from_dict(m) for m in metadata_raw] if isinstance(metadata_raw, list) else None
+        if not isinstance(metadata_raw, list):
+            metadata_raw = data.get("NewMessagesMetadata")
+
+        if isinstance(metadata_raw, list):
+            messages_metadata = [VambMessageMetadata.from_dict(m) for m in metadata_raw]
+        else:
+            messages_metadata = []
+            for message in raw_messages:
+                if not isinstance(message, dict):
+                    continue
+                message_metadata = message.get("metadata")
+                if not isinstance(message_metadata, dict):
+                    continue
+                message_id = message_metadata.get("message_id") or message.get("id")
+                if not message_id:
+                    continue
+                messages_metadata.append(
+                    VambMessageMetadata(
+                        message_id=str(message_id),
+                        maia_metadata_version=str(message_metadata.get("maia_metadata_version", "1.0")),
+                        maia_metadata=message_metadata.get("maia_metadata"),
+                    )
+                )
+
+        conversation_id = data.get("conversation_id") or data.get("ConversationId") or ""
 
         return cls(
-            conversation_id=str(data["conversation_id"]),
+            conversation_id=str(conversation_id),
             messages=messages,
             handed_to_agent=data.get("handed_to_agent"),
             mirrored_to_infobip=data.get("mirrored_to_infobip"),
             after=_parse_iso_dt(data.get("after")),
             messages_schema_version=str(data.get("messages_schema_version", "1.0")),
-            messages_metadata=messages_metadata,
+            messages_metadata=messages_metadata or None,
         )

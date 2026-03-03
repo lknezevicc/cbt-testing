@@ -165,6 +165,8 @@ class IntentTestReport:
 
 class IntentExtractor:
     KEY_CANDIDATES = {
+        "detected_route",
+        "route",
         "intent",
         "intent_name",
         "detected_intent",
@@ -217,6 +219,10 @@ class IntentExtractor:
     def _candidate_score(candidate: tuple[str, str]) -> int:
         key, value = candidate
         score = 0
+        if key == "detected_route":
+            score += 200
+        elif key == "route":
+            score += 160
         if key in {"intent", "intent_name", "detected_intent", "predicted_intent", "top_intent"}:
             score += 100
         if value:

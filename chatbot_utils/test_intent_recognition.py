@@ -35,11 +35,13 @@ class DialogWithSource:
 @dataclass
 class IntentTestRunnerConfig:
     dialogs_dir: str
+    tests_dir: str = "dialogs/test"
 
 
 class DialogTestSetLoader:
-    def __init__(self, dialogs_dir: str):
+    def __init__(self, dialogs_dir: str, tests_dir: str):
         self.dialogs_dir = dialogs_dir
+        self.tests_dir = tests_dir
 
     def load(self) -> Tuple[List[DialogWithSource], List[DialogIntentTestSet]]:
         dialogs = self._load_dialogs_with_source()
@@ -67,10 +69,15 @@ class DialogTestSetLoader:
 
         return collected
 
+    def _resolve_test_file_path(self, topic: str, dialog_name: str) -> str:
+        return str(Path(self.tests_dir) / topic / f"{dialog_name}.json")
+
     @staticmethod
-    def _resolve_test_file_path(dialog_file_path: str, dialog_name: str) -> str:
-        dialog_path = Path(dialog_file_path)
-        return str(dialog_path.parent / "test" / f"{dialog_name}.json")
+    def _resolve_dialog_topic(wrapped: DialogWithSource) -> str:
+        topic = (wrapped.dialog.topic or "").strip()
+        if topic:
+            return topic
+        return Path(wrapped.file_path).parent.name
 
     @staticmethod
     def _parse_test_cases(raw: Any, default_expected_intent: str) -> List[DialogIntentTestCase]:
@@ -111,7 +118,8 @@ class DialogTestSetLoader:
                 logger.debug("Skipping non-routable dialog: %s", dialog.name)
                 continue
 
-            test_file_path = self._resolve_test_file_path(wrapped.file_path, dialog.name)
+            topic = self._resolve_dialog_topic(wrapped)
+            test_file_path = self._resolve_test_file_path(topic, dialog.name)
             if not os.path.exists(test_file_path):
                 logger.debug("No test JSON for dialog %s at %s", dialog.name, test_file_path)
                 continue
@@ -135,7 +143,7 @@ class DialogTestSetLoader:
             test_sets.append(
                 DialogIntentTestSet(
                     dialog_name=dialog.name,
-                    topic=dialog.topic,
+                    topic=topic,
                     test_file_path=test_file_path,
                     cases=cases,
                 )
@@ -198,7 +206,7 @@ class IntentDetectionService:
 class IntentTestRunner:
     def __init__(self, config: IntentTestRunnerConfig):
         self.config = config
-        self.loader = DialogTestSetLoader(config.dialogs_dir)
+        self.loader = DialogTestSetLoader(config.dialogs_dir, config.tests_dir)
         self.detection_service = IntentDetectionService()
         self.jwt_manager = JWTVambManager()
         self.metadata_manager = MetadataManager()
@@ -265,13 +273,18 @@ class IntentTestRunner:
         )
 
 
-def run_intent_tests(dialogs_dir: str) -> IntentTestReport:
-    return IntentTestRunner(IntentTestRunnerConfig(dialogs_dir=dialogs_dir)).run()
+def run_intent_tests(dialogs_dir: str, tests_dir: str = "dialogs/test") -> IntentTestReport:
+    return IntentTestRunner(IntentTestRunnerConfig(dialogs_dir=dialogs_dir, tests_dir=tests_dir)).run()
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run intent-recognition tests against VAMB")
     parser.add_argument("--dialogs-dir", default="dialogs", help="Path to dialogs root")
+    parser.add_argument(
+        "--tests-dir",
+        default="dialogs/test",
+        help="Path to intent test JSON root, expected structure: <tests-dir>/<topic>/<dialog>.json",
+    )
     parser.add_argument(
         "--summary-output",
         default="intent_test_summary.json",
@@ -314,7 +327,7 @@ def main() -> None:
     args = parser.parse_args()
     logger.setLevel(getattr(logging, args.log_level))
 
-    report = run_intent_tests(args.dialogs_dir)
+    report = run_intent_tests(args.dialogs_dir, tests_dir=args.tests_dir)
 
     summary_payload = report.write_summary_json(args.summary_output)
 

@@ -70,6 +70,7 @@ jobs:
         run: |
           python -m chatbot_utils.test_intent_recognition \
             --dialogs-dir "${{ steps.resolve-dialogs.outputs.dialogs_dir }}" \
+            --tests-dir "dialogs/test" \
             --summary-output "${{ steps.names.outputs.summary_name }}" \
             --jira-output "${{ steps.names.outputs.jira_name }}" \
             --pdf-output "${{ steps.names.outputs.pdf_name }}" \

@@ -28,6 +28,7 @@ if ($pythonCmd.Length -gt 1) {
 $baseArgs = @(
     '-m', 'chatbot_utils.test_intent_recognition',
     '--dialogs-dir', 'dialogs',
+    '--tests-dir', 'dialogs/test',
     '--summary-output', 'intent_test_summary.json',
     '--jira-output', 'intent_test_jira_issues.json',
     '--pdf-output', 'intent_test_report.pdf'

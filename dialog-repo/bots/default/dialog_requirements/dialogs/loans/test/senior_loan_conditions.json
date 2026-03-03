@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o senior loan conditions.",
+      "expected_intent": "senior_loan_conditions"
+    },
+    {
+      "question": "Možeš li mi pomoći oko senior loan conditions?",
+      "expected_intent": "senior_loan_conditions"
+    }
+  ]
+}

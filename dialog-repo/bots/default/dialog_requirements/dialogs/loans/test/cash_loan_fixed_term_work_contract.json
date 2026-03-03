@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan fixed term work contract.",
+      "expected_intent": "cash_loan_fixed_term_work_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan fixed term work contract?",
+      "expected_intent": "cash_loan_fixed_term_work_contract"
+    }
+  ]
+}

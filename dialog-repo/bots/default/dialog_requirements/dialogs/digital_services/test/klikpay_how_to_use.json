@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o klikpay how to use.",
+      "expected_intent": "klikpay_how_to_use"
+    },
+    {
+      "question": "Možeš li mi pomoći oko klikpay how to use?",
+      "expected_intent": "klikpay_how_to_use"
+    }
+  ]
+}

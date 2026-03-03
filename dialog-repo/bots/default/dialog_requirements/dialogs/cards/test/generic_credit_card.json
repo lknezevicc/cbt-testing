@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic credit card.",
+      "expected_intent": "generic_credit_card"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic credit card?",
+      "expected_intent": "generic_credit_card"
+    }
+  ]
+}

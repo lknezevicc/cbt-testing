@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o child account open.",
+      "expected_intent": "child_account_open"
+    },
+    {
+      "question": "Možeš li mi pomoći oko child account open?",
+      "expected_intent": "child_account_open"
+    }
+  ]
+}

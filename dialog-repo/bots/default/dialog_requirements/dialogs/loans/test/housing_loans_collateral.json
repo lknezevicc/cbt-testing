@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o housing loans collateral.",
+      "expected_intent": "housing_loans_collateral"
+    },
+    {
+      "question": "Možeš li mi pomoći oko housing loans collateral?",
+      "expected_intent": "housing_loans_collateral"
+    }
+  ]
+}

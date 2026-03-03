@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o manual loan installment payment atm.",
+      "expected_intent": "manual_loan_installment_payment_atm"
+    },
+    {
+      "question": "Možeš li mi pomoći oko manual loan installment payment atm?",
+      "expected_intent": "manual_loan_installment_payment_atm"
+    }
+  ]
+}

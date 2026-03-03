@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o atm fee.",
+      "expected_intent": "atm_fee"
+    },
+    {
+      "question": "Možeš li mi pomoći oko atm fee?",
+      "expected_intent": "atm_fee"
+    }
+  ]
+}

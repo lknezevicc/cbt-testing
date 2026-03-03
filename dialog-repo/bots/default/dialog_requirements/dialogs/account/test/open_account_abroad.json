@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o open account abroad.",
+      "expected_intent": "open_account_abroad"
+    },
+    {
+      "question": "Možeš li mi pomoći oko open account abroad?",
+      "expected_intent": "open_account_abroad"
+    }
+  ]
+}

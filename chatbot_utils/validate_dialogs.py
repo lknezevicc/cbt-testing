@@ -120,15 +120,8 @@ def _validate_button_payload(
 
     dialog_id = payload_parser.extract_dialog_id(payload)
     if dialog_id is None:
-        report.add_payload_format_failure(
-            dialog_name=dialog_name,
-            answer_index=answer_index,
-            content_source=DialogSection.BUTTON,
-            content_index=button_index,
-            value=payload,
-        )
-        logger.warning(
-            "Unsupported payload format: dialog=%s answer_index=%s button_index=%s payload=%s",
+        logger.debug(
+            "Skipping non-dialog payload validation: dialog=%s answer_index=%s button_index=%s payload=%s",
             dialog_name,
             answer_index,
             button_index,

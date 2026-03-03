@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o loans cash loan offer rejected.",
+      "expected_intent": "loans_cash_loan_offer_rejected"
+    },
+    {
+      "question": "Možeš li mi pomoći oko loans cash loan offer rejected?",
+      "expected_intent": "loans_cash_loan_offer_rejected"
+    }
+  ]
+}

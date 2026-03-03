@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan refinancing rba mobile.",
+      "expected_intent": "cash_loan_refinancing_rba_mobile"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan refinancing rba mobile?",
+      "expected_intent": "cash_loan_refinancing_rba_mobile"
+    }
+  ]
+}

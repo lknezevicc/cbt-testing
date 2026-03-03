@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o online banking services.",
+      "expected_intent": "online_banking_services"
+    },
+    {
+      "question": "Možeš li mi pomoći oko online banking services?",
+      "expected_intent": "online_banking_services"
+    }
+  ]
+}

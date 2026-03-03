@@ -139,6 +139,8 @@ def parse_yaml_to_dialog(data: dict) -> Dialog:
     data = data.get("dialogs", {})
     name, dialog_definition = next(iter(data.items()))
 
+    routable_value = dialog_definition.get("routable", dialog_definition.get("is_routable", True))
+
     return Dialog(
         id=dialog_definition.get("id", name),
         name=dialog_definition.get("name", name),
@@ -152,7 +154,7 @@ def parse_yaml_to_dialog(data: dict) -> Dialog:
         description=dialog_definition.get("description", ""),
         follow_up_dialog=None,
         is_active=dialog_definition.get("is_active", True),
-        is_routable=dialog_definition.get("is_routable", True),
+        is_routable=bool(routable_value),
         is_blocking=dialog_definition.get("is_blocking", False),
         is_returnable=dialog_definition.get("is_returnable", True),
         is_persistent=dialog_definition.get("is_persistent", True),

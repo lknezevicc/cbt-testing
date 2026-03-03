@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o installments offer rejected.",
+      "expected_intent": "installments_offer_rejected"
+    },
+    {
+      "question": "Možeš li mi pomoći oko installments offer rejected?",
+      "expected_intent": "installments_offer_rejected"
+    }
+  ]
+}

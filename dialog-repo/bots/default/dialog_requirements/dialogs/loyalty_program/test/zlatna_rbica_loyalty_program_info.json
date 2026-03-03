@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o zlatna rbica loyalty program info.",
+      "expected_intent": "zlatna_rbica_loyalty_program_info"
+    },
+    {
+      "question": "Možeš li mi pomoći oko zlatna rbica loyalty program info?",
+      "expected_intent": "zlatna_rbica_loyalty_program_info"
+    }
+  ]
+}

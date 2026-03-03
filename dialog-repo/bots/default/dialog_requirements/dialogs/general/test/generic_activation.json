@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic activation.",
+      "expected_intent": "generic_activation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic activation?",
+      "expected_intent": "generic_activation"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o loan overpayment.",
+      "expected_intent": "loan_overpayment"
+    },
+    {
+      "question": "Možeš li mi pomoći oko loan overpayment?",
+      "expected_intent": "loan_overpayment"
+    }
+  ]
+}

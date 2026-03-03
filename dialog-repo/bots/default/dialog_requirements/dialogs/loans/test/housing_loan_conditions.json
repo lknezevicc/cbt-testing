@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o housing loan conditions.",
+      "expected_intent": "housing_loan_conditions"
+    },
+    {
+      "question": "Možeš li mi pomoći oko housing loan conditions?",
+      "expected_intent": "housing_loan_conditions"
+    }
+  ]
+}

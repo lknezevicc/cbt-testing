@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cap reader general info.",
+      "expected_intent": "cap_reader_general_info"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cap reader general info?",
+      "expected_intent": "cap_reader_general_info"
+    }
+  ]
+}

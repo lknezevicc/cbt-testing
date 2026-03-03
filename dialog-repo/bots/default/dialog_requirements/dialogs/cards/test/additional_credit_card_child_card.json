@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o additional credit card child card.",
+      "expected_intent": "additional_credit_card_child_card"
+    },
+    {
+      "question": "Možeš li mi pomoći oko additional credit card child card?",
+      "expected_intent": "additional_credit_card_child_card"
+    }
+  ]
+}

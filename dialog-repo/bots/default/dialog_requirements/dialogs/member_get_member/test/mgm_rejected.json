@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o mgm rejected.",
+      "expected_intent": "mgm_rejected"
+    },
+    {
+      "question": "Možeš li mi pomoći oko mgm rejected?",
+      "expected_intent": "mgm_rejected"
+    }
+  ]
+}

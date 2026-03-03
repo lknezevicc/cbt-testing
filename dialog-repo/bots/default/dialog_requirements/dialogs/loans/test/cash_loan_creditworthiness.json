@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan creditworthiness.",
+      "expected_intent": "cash_loan_creditworthiness"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan creditworthiness?",
+      "expected_intent": "cash_loan_creditworthiness"
+    }
+  ]
+}

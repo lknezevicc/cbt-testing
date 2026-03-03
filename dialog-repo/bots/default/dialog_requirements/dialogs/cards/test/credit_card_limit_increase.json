@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o credit card limit increase.",
+      "expected_intent": "credit_card_limit_increase"
+    },
+    {
+      "question": "Možeš li mi pomoći oko credit card limit increase?",
+      "expected_intent": "credit_card_limit_increase"
+    }
+  ]
+}

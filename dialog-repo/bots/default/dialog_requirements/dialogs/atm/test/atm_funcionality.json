@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o atm funcionality.",
+      "expected_intent": "atm_funcionality"
+    },
+    {
+      "question": "Možeš li mi pomoći oko atm funcionality?",
+      "expected_intent": "atm_funcionality"
+    }
+  ]
+}

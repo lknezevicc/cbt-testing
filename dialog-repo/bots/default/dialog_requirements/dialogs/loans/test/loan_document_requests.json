@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o loan document requests.",
+      "expected_intent": "loan_document_requests"
+    },
+    {
+      "question": "Možeš li mi pomoći oko loan document requests?",
+      "expected_intent": "loan_document_requests"
+    }
+  ]
+}

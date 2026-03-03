@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cards credit card offer rejected.",
+      "expected_intent": "cards_credit_card_offer_rejected"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cards credit card offer rejected?",
+      "expected_intent": "cards_credit_card_offer_rejected"
+    }
+  ]
+}

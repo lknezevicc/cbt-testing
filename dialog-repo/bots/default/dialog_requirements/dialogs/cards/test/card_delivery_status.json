@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o card delivery status.",
+      "expected_intent": "card_delivery_status"
+    },
+    {
+      "question": "Možeš li mi pomoći oko card delivery status?",
+      "expected_intent": "card_delivery_status"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o installments general info.",
+      "expected_intent": "installments_general_info"
+    },
+    {
+      "question": "Možeš li mi pomoći oko installments general info?",
+      "expected_intent": "installments_general_info"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o account add or remove assignee.",
+      "expected_intent": "account_add_or_remove_assignee"
+    },
+    {
+      "question": "Možeš li mi pomoći oko account add or remove assignee?",
+      "expected_intent": "account_add_or_remove_assignee"
+    }
+  ]
+}

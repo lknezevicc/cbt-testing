@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o installments plan pending confirmation.",
+      "expected_intent": "installments_plan_pending_confirmation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko installments plan pending confirmation?",
+      "expected_intent": "installments_plan_pending_confirmation"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o services business clients.",
+      "expected_intent": "services_business_clients"
+    },
+    {
+      "question": "Možeš li mi pomoći oko services business clients?",
+      "expected_intent": "services_business_clients"
+    }
+  ]
+}

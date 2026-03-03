@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o zlatna rbica points redeeming issues.",
+      "expected_intent": "zlatna_rbica_points_redeeming_issues"
+    },
+    {
+      "question": "Možeš li mi pomoći oko zlatna rbica points redeeming issues?",
+      "expected_intent": "zlatna_rbica_points_redeeming_issues"
+    }
+  ]
+}

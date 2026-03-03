@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o swift code inquiry.",
+      "expected_intent": "swift_code_inquiry"
+    },
+    {
+      "question": "Možeš li mi pomoći oko swift code inquiry?",
+      "expected_intent": "swift_code_inquiry"
+    }
+  ]
+}

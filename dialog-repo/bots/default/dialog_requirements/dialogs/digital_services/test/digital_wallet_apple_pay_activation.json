@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o digital wallet apple pay activation.",
+      "expected_intent": "digital_wallet_apple_pay_activation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko digital wallet apple pay activation?",
+      "expected_intent": "digital_wallet_apple_pay_activation"
+    }
+  ]
+}

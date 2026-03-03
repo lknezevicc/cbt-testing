@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o voluntary pension fund.",
+      "expected_intent": "voluntary_pension_fund"
+    },
+    {
+      "question": "Možeš li mi pomoći oko voluntary pension fund?",
+      "expected_intent": "voluntary_pension_fund"
+    }
+  ]
+}

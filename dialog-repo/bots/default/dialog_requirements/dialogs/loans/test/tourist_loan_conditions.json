@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o tourist loan conditions.",
+      "expected_intent": "tourist_loan_conditions"
+    },
+    {
+      "question": "Možeš li mi pomoći oko tourist loan conditions?",
+      "expected_intent": "tourist_loan_conditions"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o oryx general info road.",
+      "expected_intent": "oryx_general_info_road"
+    },
+    {
+      "question": "Možeš li mi pomoći oko oryx general info road?",
+      "expected_intent": "oryx_general_info_road"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o zlatna rbica points redeeming requirement not fulfilled.",
+      "expected_intent": "zlatna_rbica_points_redeeming_requirement_not_fulfilled"
+    },
+    {
+      "question": "Možeš li mi pomoći oko zlatna rbica points redeeming requirement not fulfilled?",
+      "expected_intent": "zlatna_rbica_points_redeeming_requirement_not_fulfilled"
+    }
+  ]
+}

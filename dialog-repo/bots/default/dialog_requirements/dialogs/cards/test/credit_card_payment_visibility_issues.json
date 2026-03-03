@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o credit card payment visibility issues.",
+      "expected_intent": "credit_card_payment_visibility_issues"
+    },
+    {
+      "question": "Možeš li mi pomoći oko credit card payment visibility issues?",
+      "expected_intent": "credit_card_payment_visibility_issues"
+    }
+  ]
+}

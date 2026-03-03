@@ -204,19 +204,36 @@ class DialogValidationReport:
 
 
 class PayloadParser:
-    DIALOG_PAYLOAD_REGEX = re.compile(
-        r'^/dialog\{\{\s*"dialog_id"\s*:\s*"([^"]+)"\s*\}\}$'
-    )
+    DIALOG_PAYLOAD_REGEX = re.compile(r"^/dialog\{\{(?P<body>.*)\}\}$", re.DOTALL)
 
     def extract_dialog_id(self, payload: str) -> Optional[str]:
         if not payload:
             return None
 
-        match = self.DIALOG_PAYLOAD_REGEX.match(payload.strip())
+        raw_payload = payload.strip()
+        match = self.DIALOG_PAYLOAD_REGEX.match(raw_payload)
         if not match:
             return None
 
-        return match.group(1).strip()
+        body = match.group("body").strip()
+        if not body:
+            return None
+
+        json_candidate = body
+        if not (json_candidate.startswith("{") and json_candidate.endswith("}")):
+            json_candidate = "{" + json_candidate + "}"
+
+        try:
+            payload_data = json.loads(json_candidate)
+        except json.JSONDecodeError:
+            return None
+
+        dialog_id = payload_data.get("dialog_id") if isinstance(payload_data, dict) else None
+        if not isinstance(dialog_id, str):
+            return None
+
+        dialog_id = dialog_id.strip()
+        return dialog_id or None
 
 
 class UrlChecker:

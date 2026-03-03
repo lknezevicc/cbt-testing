@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o account ownership confirmation request.",
+      "expected_intent": "account_ownership_confirmation_request"
+    },
+    {
+      "question": "Možeš li mi pomoći oko account ownership confirmation request?",
+      "expected_intent": "account_ownership_confirmation_request"
+    }
+  ]
+}

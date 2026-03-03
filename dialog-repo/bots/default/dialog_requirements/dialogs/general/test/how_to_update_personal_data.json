@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o how to update personal data.",
+      "expected_intent": "how_to_update_personal_data"
+    },
+    {
+      "question": "Možeš li mi pomoći oko how to update personal data?",
+      "expected_intent": "how_to_update_personal_data"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o uniqa travel insurance contracting.",
+      "expected_intent": "uniqa_travel_insurance_contracting"
+    },
+    {
+      "question": "Možeš li mi pomoći oko uniqa travel insurance contracting?",
+      "expected_intent": "uniqa_travel_insurance_contracting"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic documentation.",
+      "expected_intent": "generic_documentation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic documentation?",
+      "expected_intent": "generic_documentation"
+    }
+  ]
+}

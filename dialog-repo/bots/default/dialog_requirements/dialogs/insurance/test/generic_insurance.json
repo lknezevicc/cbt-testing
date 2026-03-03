@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic insurance.",
+      "expected_intent": "generic_insurance"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic insurance?",
+      "expected_intent": "generic_insurance"
+    }
+  ]
+}

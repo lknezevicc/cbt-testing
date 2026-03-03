@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o loans early repayment partial.",
+      "expected_intent": "loans_early_repayment_partial"
+    },
+    {
+      "question": "Možeš li mi pomoći oko loans early repayment partial?",
+      "expected_intent": "loans_early_repayment_partial"
+    }
+  ]
+}

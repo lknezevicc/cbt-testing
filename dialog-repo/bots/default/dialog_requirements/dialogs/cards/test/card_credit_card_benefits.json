@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o card credit card benefits.",
+      "expected_intent": "card_credit_card_benefits"
+    },
+    {
+      "question": "Možeš li mi pomoći oko card credit card benefits?",
+      "expected_intent": "card_credit_card_benefits"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o credit card apply request status.",
+      "expected_intent": "credit_card_apply_request_status"
+    },
+    {
+      "question": "Možeš li mi pomoći oko credit card apply request status?",
+      "expected_intent": "credit_card_apply_request_status"
+    }
+  ]
+}

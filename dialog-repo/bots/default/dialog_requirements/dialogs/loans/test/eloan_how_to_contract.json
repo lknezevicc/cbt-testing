@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o eloan how to contract.",
+      "expected_intent": "eloan_how_to_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko eloan how to contract?",
+      "expected_intent": "eloan_how_to_contract"
+    }
+  ]
+}

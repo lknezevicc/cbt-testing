@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o additional credit card not holder.",
+      "expected_intent": "additional_credit_card_not_holder"
+    },
+    {
+      "question": "Možeš li mi pomoći oko additional credit card not holder?",
+      "expected_intent": "additional_credit_card_not_holder"
+    }
+  ]
+}

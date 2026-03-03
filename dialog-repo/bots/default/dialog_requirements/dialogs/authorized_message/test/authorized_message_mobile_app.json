@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o authorized message mobile app.",
+      "expected_intent": "authorized_message_mobile_app"
+    },
+    {
+      "question": "Možeš li mi pomoći oko authorized message mobile app?",
+      "expected_intent": "authorized_message_mobile_app"
+    }
+  ]
+}

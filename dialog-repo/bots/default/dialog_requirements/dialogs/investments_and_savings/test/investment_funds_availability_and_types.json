@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o investment funds availability and types.",
+      "expected_intent": "investment_funds_availability_and_types"
+    },
+    {
+      "question": "Možeš li mi pomoći oko investment funds availability and types?",
+      "expected_intent": "investment_funds_availability_and_types"
+    }
+  ]
+}

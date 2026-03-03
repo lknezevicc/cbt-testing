@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o credit card types.",
+      "expected_intent": "credit_card_types"
+    },
+    {
+      "question": "Možeš li mi pomoći oko credit card types?",
+      "expected_intent": "credit_card_types"
+    }
+  ]
+}

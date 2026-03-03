@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan mobile app request.",
+      "expected_intent": "cash_loan_mobile_app_request"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan mobile app request?",
+      "expected_intent": "cash_loan_mobile_app_request"
+    }
+  ]
+}

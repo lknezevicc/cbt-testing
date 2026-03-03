@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o atm held funds.",
+      "expected_intent": "atm_held_funds"
+    },
+    {
+      "question": "Možeš li mi pomoći oko atm held funds?",
+      "expected_intent": "atm_held_funds"
+    }
+  ]
+}

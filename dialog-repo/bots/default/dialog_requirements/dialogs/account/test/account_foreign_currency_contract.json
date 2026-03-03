@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o account foreign currency contract.",
+      "expected_intent": "account_foreign_currency_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko account foreign currency contract?",
+      "expected_intent": "account_foreign_currency_contract"
+    }
+  ]
+}

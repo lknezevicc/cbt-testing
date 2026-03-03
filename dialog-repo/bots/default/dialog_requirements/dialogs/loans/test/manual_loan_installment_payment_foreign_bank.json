@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o manual loan installment payment foreign bank.",
+      "expected_intent": "manual_loan_installment_payment_foreign_bank"
+    },
+    {
+      "question": "Možeš li mi pomoći oko manual loan installment payment foreign bank?",
+      "expected_intent": "manual_loan_installment_payment_foreign_bank"
+    }
+  ]
+}

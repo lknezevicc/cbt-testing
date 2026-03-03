@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o payment to account over atm.",
+      "expected_intent": "payment_to_account_over_atm"
+    },
+    {
+      "question": "Možeš li mi pomoći oko payment to account over atm?",
+      "expected_intent": "payment_to_account_over_atm"
+    }
+  ]
+}

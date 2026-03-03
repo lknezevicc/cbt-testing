@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic cancellation.",
+      "expected_intent": "generic_cancellation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic cancellation?",
+      "expected_intent": "generic_cancellation"
+    }
+  ]
+}

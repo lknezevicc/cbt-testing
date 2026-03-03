@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cards debit credit card activation.",
+      "expected_intent": "cards_debit_credit_card_activation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cards debit credit card activation?",
+      "expected_intent": "cards_debit_credit_card_activation"
+    }
+  ]
+}

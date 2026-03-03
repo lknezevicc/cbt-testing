@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o klikpay no iban.",
+      "expected_intent": "klikpay_no_iban"
+    },
+    {
+      "question": "Možeš li mi pomoći oko klikpay no iban?",
+      "expected_intent": "klikpay_no_iban"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o mgm request status.",
+      "expected_intent": "mgm_request_status"
+    },
+    {
+      "question": "Možeš li mi pomoći oko mgm request status?",
+      "expected_intent": "mgm_request_status"
+    }
+  ]
+}

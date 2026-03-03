@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o internet banking benefits.",
+      "expected_intent": "internet_banking_benefits"
+    },
+    {
+      "question": "Možeš li mi pomoći oko internet banking benefits?",
+      "expected_intent": "internet_banking_benefits"
+    }
+  ]
+}

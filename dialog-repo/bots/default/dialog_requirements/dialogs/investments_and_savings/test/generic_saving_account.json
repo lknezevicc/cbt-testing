@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic saving account.",
+      "expected_intent": "generic_saving_account"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic saving account?",
+      "expected_intent": "generic_saving_account"
+    }
+  ]
+}

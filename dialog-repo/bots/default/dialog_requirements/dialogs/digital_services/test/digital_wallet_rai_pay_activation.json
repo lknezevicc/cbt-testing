@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o digital wallet rai pay activation.",
+      "expected_intent": "digital_wallet_rai_pay_activation"
+    },
+    {
+      "question": "Možeš li mi pomoći oko digital wallet rai pay activation?",
+      "expected_intent": "digital_wallet_rai_pay_activation"
+    }
+  ]
+}

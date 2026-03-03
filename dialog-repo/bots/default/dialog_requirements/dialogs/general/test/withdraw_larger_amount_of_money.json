@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o withdraw larger amount of money.",
+      "expected_intent": "withdraw_larger_amount_of_money"
+    },
+    {
+      "question": "Možeš li mi pomoći oko withdraw larger amount of money?",
+      "expected_intent": "withdraw_larger_amount_of_money"
+    }
+  ]
+}

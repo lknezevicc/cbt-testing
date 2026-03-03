@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o digital wallet general.",
+      "expected_intent": "digital_wallet_general"
+    },
+    {
+      "question": "Možeš li mi pomoći oko digital wallet general?",
+      "expected_intent": "digital_wallet_general"
+    }
+  ]
+}

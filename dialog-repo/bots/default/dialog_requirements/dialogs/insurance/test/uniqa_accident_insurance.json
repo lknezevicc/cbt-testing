@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o uniqa accident insurance.",
+      "expected_intent": "uniqa_accident_insurance"
+    },
+    {
+      "question": "Možeš li mi pomoći oko uniqa accident insurance?",
+      "expected_intent": "uniqa_accident_insurance"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o lombard loan repayment method.",
+      "expected_intent": "lombard_loan_repayment_method"
+    },
+    {
+      "question": "Možeš li mi pomoći oko lombard loan repayment method?",
+      "expected_intent": "lombard_loan_repayment_method"
+    }
+  ]
+}

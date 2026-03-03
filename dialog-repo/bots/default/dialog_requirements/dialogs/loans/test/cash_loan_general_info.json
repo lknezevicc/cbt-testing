@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan general info.",
+      "expected_intent": "cash_loan_general_info"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan general info?",
+      "expected_intent": "cash_loan_general_info"
+    }
+  ]
+}

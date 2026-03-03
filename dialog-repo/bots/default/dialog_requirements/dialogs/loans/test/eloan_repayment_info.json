@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o eloan repayment info.",
+      "expected_intent": "eloan_repayment_info"
+    },
+    {
+      "question": "Možeš li mi pomoći oko eloan repayment info?",
+      "expected_intent": "eloan_repayment_info"
+    }
+  ]
+}

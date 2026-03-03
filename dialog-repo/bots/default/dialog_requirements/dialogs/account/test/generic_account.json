@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o generic account.",
+      "expected_intent": "generic_account"
+    },
+    {
+      "question": "Možeš li mi pomoći oko generic account?",
+      "expected_intent": "generic_account"
+    }
+  ]
+}

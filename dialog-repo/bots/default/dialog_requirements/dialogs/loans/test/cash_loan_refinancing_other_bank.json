@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan refinancing other bank.",
+      "expected_intent": "cash_loan_refinancing_other_bank"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan refinancing other bank?",
+      "expected_intent": "cash_loan_refinancing_other_bank"
+    }
+  ]
+}

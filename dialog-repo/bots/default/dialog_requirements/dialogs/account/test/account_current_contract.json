@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o account current contract.",
+      "expected_intent": "account_current_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko account current contract?",
+      "expected_intent": "account_current_contract"
+    }
+  ]
+}

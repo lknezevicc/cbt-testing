@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o loan cant pay installment.",
+      "expected_intent": "loan_cant_pay_installment"
+    },
+    {
+      "question": "Možeš li mi pomoći oko loan cant pay installment?",
+      "expected_intent": "loan_cant_pay_installment"
+    }
+  ]
+}

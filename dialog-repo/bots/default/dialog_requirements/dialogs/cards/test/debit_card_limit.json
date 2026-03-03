@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o debit card limit.",
+      "expected_intent": "debit_card_limit"
+    },
+    {
+      "question": "Možeš li mi pomoći oko debit card limit?",
+      "expected_intent": "debit_card_limit"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o internet banking mtoken.",
+      "expected_intent": "internet_banking_mtoken"
+    },
+    {
+      "question": "Možeš li mi pomoći oko internet banking mtoken?",
+      "expected_intent": "internet_banking_mtoken"
+    }
+  ]
+}

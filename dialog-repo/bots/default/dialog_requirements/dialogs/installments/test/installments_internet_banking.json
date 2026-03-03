@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o installments internet banking.",
+      "expected_intent": "installments_internet_banking"
+    },
+    {
+      "question": "Možeš li mi pomoći oko installments internet banking?",
+      "expected_intent": "installments_internet_banking"
+    }
+  ]
+}

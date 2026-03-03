@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o mobile banking functionality.",
+      "expected_intent": "mobile_banking_functionality"
+    },
+    {
+      "question": "Možeš li mi pomoći oko mobile banking functionality?",
+      "expected_intent": "mobile_banking_functionality"
+    }
+  ]
+}

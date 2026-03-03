@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o when will payment from same bank be visible.",
+      "expected_intent": "when_will_payment_from_same_bank_be_visible"
+    },
+    {
+      "question": "Možeš li mi pomoći oko when will payment from same bank be visible?",
+      "expected_intent": "when_will_payment_from_same_bank_be_visible"
+    }
+  ]
+}

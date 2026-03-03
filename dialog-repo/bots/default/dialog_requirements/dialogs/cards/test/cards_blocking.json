@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cards blocking.",
+      "expected_intent": "cards_blocking"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cards blocking?",
+      "expected_intent": "cards_blocking"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o authorized message internet banking.",
+      "expected_intent": "authorized_message_internet_banking"
+    },
+    {
+      "question": "Možeš li mi pomoći oko authorized message internet banking?",
+      "expected_intent": "authorized_message_internet_banking"
+    }
+  ]
+}

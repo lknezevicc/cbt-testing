@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o location working hours atm branches.",
+      "expected_intent": "location_working_hours_atm_branches"
+    },
+    {
+      "question": "Možeš li mi pomoći oko location working hours atm branches?",
+      "expected_intent": "location_working_hours_atm_branches"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o payment international transfer.",
+      "expected_intent": "payment_international_transfer"
+    },
+    {
+      "question": "Možeš li mi pomoći oko payment international transfer?",
+      "expected_intent": "payment_international_transfer"
+    }
+  ]
+}

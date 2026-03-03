@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o lombard loan contract.",
+      "expected_intent": "lombard_loan_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko lombard loan contract?",
+      "expected_intent": "lombard_loan_contract"
+    }
+  ]
+}

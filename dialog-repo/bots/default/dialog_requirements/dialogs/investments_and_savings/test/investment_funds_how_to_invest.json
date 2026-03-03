@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o investment funds how to invest.",
+      "expected_intent": "investment_funds_how_to_invest"
+    },
+    {
+      "question": "Možeš li mi pomoći oko investment funds how to invest?",
+      "expected_intent": "investment_funds_how_to_invest"
+    }
+  ]
+}

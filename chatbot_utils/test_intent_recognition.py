@@ -107,6 +107,10 @@ class DialogTestSetLoader:
 
         for wrapped in dialogs:
             dialog = wrapped.dialog
+            if not dialog.is_routable:
+                logger.debug("Skipping non-routable dialog: %s", dialog.name)
+                continue
+
             test_file_path = self._resolve_test_file_path(wrapped.file_path, dialog.name)
             if not os.path.exists(test_file_path):
                 logger.debug("No test JSON for dialog %s at %s", dialog.name, test_file_path)

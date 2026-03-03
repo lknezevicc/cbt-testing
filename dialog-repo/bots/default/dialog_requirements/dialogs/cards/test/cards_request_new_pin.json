@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cards request new pin.",
+      "expected_intent": "cards_request_new_pin"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cards request new pin?",
+      "expected_intent": "cards_request_new_pin"
+    }
+  ]
+}

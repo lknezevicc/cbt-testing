@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o mobile banking contract.",
+      "expected_intent": "mobile_banking_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko mobile banking contract?",
+      "expected_intent": "mobile_banking_contract"
+    }
+  ]
+}

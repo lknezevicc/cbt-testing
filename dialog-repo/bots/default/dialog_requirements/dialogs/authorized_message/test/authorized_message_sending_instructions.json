@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o authorized message sending instructions.",
+      "expected_intent": "authorized_message_sending_instructions"
+    },
+    {
+      "question": "Možeš li mi pomoći oko authorized message sending instructions?",
+      "expected_intent": "authorized_message_sending_instructions"
+    }
+  ]
+}

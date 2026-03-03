@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o change pin atm.",
+      "expected_intent": "change_pin_atm"
+    },
+    {
+      "question": "Možeš li mi pomoći oko change pin atm?",
+      "expected_intent": "change_pin_atm"
+    }
+  ]
+}

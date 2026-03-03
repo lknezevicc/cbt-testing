@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o cash loan how to contract.",
+      "expected_intent": "cash_loan_how_to_contract"
+    },
+    {
+      "question": "Možeš li mi pomoći oko cash loan how to contract?",
+      "expected_intent": "cash_loan_how_to_contract"
+    }
+  ]
+}

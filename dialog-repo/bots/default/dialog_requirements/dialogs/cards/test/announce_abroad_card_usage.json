@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Trebam informacije o announce abroad card usage.",
+      "expected_intent": "announce_abroad_card_usage"
+    },
+    {
+      "question": "Možeš li mi pomoći oko announce abroad card usage?",
+      "expected_intent": "announce_abroad_card_usage"
+    }
+  ]
+}

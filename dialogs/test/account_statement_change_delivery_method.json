@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Kako mogu promijeniti način dostave izvatka?",
+      "expected_intent": "account_statement_change_delivery_method"
+    },
+    {
+      "question": "Gdje mogu promijeniti dostavu izvatka za tekući račun?",
+      "expected_intent": "account_statement_change_delivery_method"
+    }
+  ]
+}

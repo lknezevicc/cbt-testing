@@ -1,6 +1,8 @@
 import json
 import logging
 import re
+import socket
+import ssl
 import time
 from collections import defaultdict
 from dataclasses import asdict, dataclass
@@ -8,6 +10,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlparse
 
 import requests
 
@@ -225,6 +228,43 @@ class UrlChecker:
         self.timeout_seconds = timeout_seconds
         self.logger = logger
         self._cache: Dict[str, tuple[bool, Optional[int], Optional[str], int]] = {}
+        self._headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Linux x86_64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/122.0.0.0 Safari/537.36"
+            ),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9,hr;q=0.8",
+            "Connection": "close",
+        }
+
+    @staticmethod
+    def _is_restricted_but_alive_status(status_code: int) -> bool:
+        return status_code in {401, 403, 405, 429}
+
+    def _network_reachable(self, url: str) -> bool:
+        parsed = urlparse(url)
+        host = parsed.hostname
+        if not host:
+            return False
+
+        port = parsed.port or (443 if parsed.scheme == "https" else 80)
+
+        try:
+            socket.getaddrinfo(host, port)
+        except OSError:
+            return False
+
+        try:
+            with socket.create_connection((host, port), timeout=self.timeout_seconds) as sock:
+                if parsed.scheme == "https":
+                    context = ssl.create_default_context()
+                    with context.wrap_socket(sock, server_hostname=host):
+                        pass
+            return True
+        except OSError:
+            return False
 
     @staticmethod
     def is_url(value: str) -> bool:
@@ -258,21 +298,83 @@ class UrlChecker:
             return cached
 
         start = time.perf_counter()
-        try:
-            response = requests.head(url, allow_redirects=True, timeout=self.timeout_seconds)
-            if response.status_code >= 400 or response.status_code in (405, 501):
-                response = requests.get(url, allow_redirects=True, timeout=self.timeout_seconds)
+        head_response = None
+        head_error: Optional[str] = None
 
-            elapsed = int((time.perf_counter() - start) * 1000)
-            if response.status_code >= 400:
-                result = (False, response.status_code, f"HTTP {response.status_code}", elapsed)
-            else:
-                result = (True, response.status_code, None, elapsed)
+        try:
+            head_response = requests.head(
+                url,
+                allow_redirects=True,
+                timeout=self.timeout_seconds,
+                headers=self._headers,
+            )
         except requests.RequestException as exc:
-            elapsed = int((time.perf_counter() - start) * 1000)
-            result = (False, None, str(exc), elapsed)
+            head_error = str(exc)
             if self.logger:
-                self.logger.debug("URL check request exception for %s: %s", url, exc)
+                self.logger.debug("HEAD request failed for %s: %s", url, exc)
+
+        response = head_response
+        needs_get = (
+            response is None
+            or response.status_code >= 400
+            or response.status_code in (405, 501)
+        )
+
+        if needs_get:
+            try:
+                response = requests.get(
+                    url,
+                    allow_redirects=True,
+                    timeout=self.timeout_seconds,
+                    headers=self._headers,
+                    stream=True,
+                )
+            except requests.RequestException as get_exc:
+                elapsed = int((time.perf_counter() - start) * 1000)
+
+                if self._network_reachable(url):
+                    result = (True, None, "HTTP probe blocked but host reachable", elapsed)
+                    if self.logger:
+                        self.logger.warning(
+                            "HTTP probe blocked for %s; treated as reachable via network fallback (%s)",
+                            url,
+                            get_exc,
+                        )
+                elif head_response is not None:
+                    if self._is_restricted_but_alive_status(head_response.status_code):
+                        result = (
+                            True,
+                            head_response.status_code,
+                            f"HTTP {head_response.status_code} (restricted)",
+                            elapsed,
+                        )
+                    elif head_response.status_code >= 400:
+                        result = (
+                            False,
+                            head_response.status_code,
+                            f"HTTP {head_response.status_code}",
+                            elapsed,
+                        )
+                    else:
+                        result = (True, head_response.status_code, None, elapsed)
+                else:
+                    error_message = (
+                        f"HEAD: {head_error}; GET: {get_exc}"
+                        if head_error
+                        else str(get_exc)
+                    )
+                    result = (False, None, error_message, elapsed)
+
+                self._cache[url] = result
+                return result
+
+        elapsed = int((time.perf_counter() - start) * 1000)
+        if self._is_restricted_but_alive_status(response.status_code):
+            result = (True, response.status_code, f"HTTP {response.status_code} (restricted)", elapsed)
+        elif response.status_code >= 400:
+            result = (False, response.status_code, f"HTTP {response.status_code}", elapsed)
+        else:
+            result = (True, response.status_code, None, elapsed)
 
         self._cache[url] = result
         return result

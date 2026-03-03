@@ -1,0 +1,108 @@
+name: Intent Recognition Test Report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  test-intents:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout dialog repo
+        uses: actions/checkout@v4
+        with:
+          github-server-url: https://code.rbi.tech
+          repository: raiffeisen/maia-bot-rbhr-raia
+          ref: customer-staging
+          token: ${{ secrets.DIALOG_REPO_TOKEN }}
+          path: dialog-repo
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Resolve dialogs directory
+        id: resolve-dialogs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -d "dialog-repo/bots/default/dialog_requirements/dialogs" ]; then
+            echo "dialogs_dir=dialog-repo/bots/default/dialog_requirements/dialogs" >> "$GITHUB_OUTPUT"
+          else
+            echo "Could not locate dialogs directory in checked out repo"
+            find dialog-repo -maxdepth 4 -type d | sort
+            exit 1
+          fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate timestamped output names
+        id: names
+        shell: bash
+        run: |
+          stamp="$(date -u +'%Y-%m-%d_%H-%M-%S_UTC')"
+          echo "summary_name=intent_test_summary_${stamp}.json" >> "$GITHUB_OUTPUT"
+          echo "jira_name=intent_test_jira_issues_${stamp}.json" >> "$GITHUB_OUTPUT"
+          echo "pdf_name=intent_test_report_${stamp}.pdf" >> "$GITHUB_OUTPUT"
+          echo "log_name=intent_test_log_${stamp}.log" >> "$GITHUB_OUTPUT"
+
+      - name: Run intent recognition tests
+        shell: bash
+        run: |
+          python -m chatbot_utils.test_intent_recognition \
+            --dialogs-dir "${{ steps.resolve-dialogs.outputs.dialogs_dir }}" \
+            --summary-output "${{ steps.names.outputs.summary_name }}" \
+            --jira-output "${{ steps.names.outputs.jira_name }}" \
+            --pdf-output "${{ steps.names.outputs.pdf_name }}" \
+            --log-level INFO
+
+      - name: Prepare timestamped log file
+        shell: bash
+        run: |
+          if [ -f "logs/test_intent_recognition.log" ]; then
+            cp "logs/test_intent_recognition.log" "${{ steps.names.outputs.log_name }}"
+          else
+            echo "Log file not found" > "${{ steps.names.outputs.log_name }}"
+          fi
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: intent-test-pdf-${{ github.run_number }}
+          path: ${{ steps.names.outputs.pdf_name }}
+          if-no-files-found: error
+
+      - name: Upload JSON artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: intent-test-json-${{ github.run_number }}
+          path: |
+            ${{ steps.names.outputs.summary_name }}
+            ${{ steps.names.outputs.jira_name }}
+          if-no-files-found: error
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: intent-test-log-${{ github.run_number }}
+          path: ${{ steps.names.outputs.log_name }}
+          if-no-files-found: error

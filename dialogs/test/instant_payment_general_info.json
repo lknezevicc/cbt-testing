@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {
+      "question": "Što je instant plaćanje?",
+      "expected_intent": "instant_payment_general_info"
+    },
+    {
+      "question": "Koliko traje instant plaćanje?",
+      "expected_intent": "instant_payment_general_info"
+    }
+  ]
+}
